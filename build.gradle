@@ -13,3 +13,26 @@ repositories {
 dependencies {
     api group: 'io.vproxy', name: 'vjson', version: '1.4.6'
 }
+
+compileJava {
+    doFirst {
+        options.compilerArgs << '--module-path' << classpath.asPath
+    }
+    options.compilerArgs << '--add-modules' << [
+            'vjson',
+            'kotlin.stdlib',
+    ].join(',')
+    options.compilerArgs += '--add-exports=java.base/jdk.internal.misc=io.vproxy.base'
+}
+
+sourceCompatibility = 11.0
+targetCompatibility = 11.0
+
+compileKotlin {
+    kotlinOptions {
+      jvmTarget = '11'
+      freeCompilerArgs += '-Xjvm-default=enable'
+      freeCompilerArgs += '-Xassertions=jvm'
+    }
+    destinationDir = compileJava.destinationDir
+}
