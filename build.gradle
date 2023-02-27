@@ -1,0 +1,15 @@
+plugins {
+    id 'java-library'
+    id 'org.jetbrains.kotlin.jvm' version '1.5.31'
+}
+
+group 'io.vproxy.commons'
+version '0.0.1'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api group: 'io.vproxy', name: 'vjson', version: '1.4.6'
+}
