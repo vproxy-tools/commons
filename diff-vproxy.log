@@ -1,0 +1,1047 @@
+!!!!! diff /java/module-info.java !!!!!
+!!!!! 4c4,6
+!!!!! <     requires vjson;
+!!!!! ---
+!!!!! >     requires kotlinx.coroutines.core.jvm;
+!!!!! > 
+!!!!! >     requires transitive io.vproxy.dep;
+!!!!! 6a9,12
+!!!!! >     exports io.vproxy.base.component.check;
+!!!!! >     exports io.vproxy.base.component.elgroup;
+!!!!! >     exports io.vproxy.base.component.elgroup.dummy;
+!!!!! >     exports io.vproxy.base.component.svrgroup;
+!!!!! 7a14,30
+!!!!! >     exports io.vproxy.base.connection.util;
+!!!!! >     exports io.vproxy.base.dhcp;
+!!!!! >     exports io.vproxy.base.dns;
+!!!!! >     exports io.vproxy.base.dns.dnsserverlistgetter;
+!!!!! >     exports io.vproxy.base.http;
+!!!!! >     exports io.vproxy.base.http.connect;
+!!!!! >     exports io.vproxy.base.processor;
+!!!!! >     exports io.vproxy.base.processor.common;
+!!!!! >     exports io.vproxy.base.processor.dubbo;
+!!!!! >     exports io.vproxy.base.processor.http;
+!!!!! >     exports io.vproxy.base.processor.http1;
+!!!!! >     exports io.vproxy.base.processor.http1.builder;
+!!!!! >     exports io.vproxy.base.processor.http1.entity;
+!!!!! >     exports io.vproxy.base.processor.httpbin;
+!!!!! >     exports io.vproxy.base.processor.httpbin.entity;
+!!!!! >     exports io.vproxy.base.processor.httpbin.frame;
+!!!!! >     exports io.vproxy.base.processor.httpbin.hpack;
+!!!!! 8a32,46
+!!!!! >     exports io.vproxy.base.protocol;
+!!!!! >     exports io.vproxy.base.redis;
+!!!!! >     exports io.vproxy.base.redis.application;
+!!!!! >     exports io.vproxy.base.redis.entity;
+!!!!! >     exports io.vproxy.base.selector;
+!!!!! >     exports io.vproxy.base.selector.wrap;
+!!!!! >     exports io.vproxy.base.selector.wrap.arqudp;
+!!!!! >     exports io.vproxy.base.selector.wrap.blocking;
+!!!!! >     exports io.vproxy.base.selector.wrap.file;
+!!!!! >     exports io.vproxy.base.selector.wrap.h2streamed;
+!!!!! >     exports io.vproxy.base.selector.wrap.kcp;
+!!!!! >     exports io.vproxy.base.selector.wrap.kcp.mock;
+!!!!! >     exports io.vproxy.base.selector.wrap.streamed;
+!!!!! >     exports io.vproxy.base.selector.wrap.udp;
+!!!!! >     exports io.vproxy.base.socks;
+!!!!! 13a52
+!!!!! >     exports io.vproxy.base.util.codec;
+!!!!! 14a54
+!!!!! >     exports io.vproxy.base.util.crypto;
+!!!!! 17a58
+!!!!! >     exports io.vproxy.base.util.file;
+!!!!! 28a70,71
+!!!!! >     exports io.vproxy.base.util.ringbuffer.ssl;
+!!!!! >     exports io.vproxy.base.util.thread;
+!!!!! 35a79,83
+!!!!! >     exports io.vproxy.vfd.abs;
+!!!!! >     exports io.vproxy.vfd.jdk;
+!!!!! >     exports io.vproxy.vfd.posix;
+!!!!! >     exports io.vproxy.vfd.windows;
+!!!!! >     exports io.vproxy.vmirror;
+!!!!! 36a85,87
+!!!!! >     exports io.vproxy.vpacket.conntrack;
+!!!!! >     exports io.vproxy.vpacket.conntrack.tcp;
+!!!!! >     exports io.vproxy.vpacket.conntrack.udp;
+!!!!! 41a93,96
+!!!!! >     exports io.vproxy.xdp;
+!!!!! > 
+!!!!! >     uses io.vproxy.vfd.FDs;
+!!!!! >     uses io.vproxy.base.processor.ProcessorRegistry;
+!!!!! diff return code 1 !!!!!
+
+##### files are the same: /java/io/vproxy/commons/util/IOUtils.java #####
+##### files are the same: /java/io/vproxy/commons/util/Singleton.java #####
+##### files are the same: /java/io/vproxy/commons/graph/GraphEdge.java #####
+##### files are the same: /java/io/vproxy/commons/graph/Graph.java #####
+##### files are the same: /java/io/vproxy/commons/graph/GraphPath.java #####
+##### files are the same: /java/io/vproxy/commons/graph/GraphBuilder.java #####
+##### files are the same: /java/io/vproxy/commons/graph/GraphNode.java #####
+##### files are the same: /java/io/vproxy/commons/graph/Dijkstra.java #####
+!!!!! diff /java/io/vproxy/vfd/IP.java !!!!!
+!!!!! 2a3
+!!!!! > import io.vproxy.base.dns.Resolver;
+!!!!! 3a5,6
+!!!!! > import io.vproxy.base.util.callback.BlockCallback;
+!!!!! > import io.vproxy.base.util.callback.Callback;
+!!!!! 4a8
+!!!!! > import java.io.IOException;
+!!!!! 31a36,39
+!!!!! >     public static IP blockResolve(String hostOrIp) {
+!!!!! >         return from(blockParseAddress(hostOrIp));
+!!!!! >     }
+!!!!! > 
+!!!!! 309a318,343
+!!!!! >     public static IPPort blockParseL4Addr(String l4addr) throws Exception {
+!!!!! >         if (!l4addr.contains(":")) {
+!!!!! >             throw new Exception("missing port");
+!!!!! >         }
+!!!!! >         String ip = l4addr.substring(0, l4addr.lastIndexOf(":"));
+!!!!! >         String portStr = l4addr.substring(l4addr.lastIndexOf(":") + 1);
+!!!!! >         int port;
+!!!!! >         try {
+!!!!! >             port = Integer.parseInt(portStr);
+!!!!! >         } catch (NumberFormatException e) {
+!!!!! >             throw new Exception("invalid port number");
+!!!!! >         }
+!!!!! >         if (port < 0 || port > 65535) {
+!!!!! >             throw new Exception("invalid port number: out of range");
+!!!!! >         }
+!!!!! > 
+!!!!! >         byte[] ipBytes = parseIpString(ip);
+!!!!! >         if (ipBytes != null) {
+!!!!! >             return new IPPort(IP.from(ipBytes), port);
+!!!!! >         }
+!!!!! >         // try hostname
+!!!!! >         var cb = new BlockCallback<IP, IOException>();
+!!!!! >         Resolver.getDefault().resolve(ip, cb);
+!!!!! >         return new IPPort(cb.block(), port);
+!!!!! >     }
+!!!!! > 
+!!!!! 437a472,491
+!!!!! >     public static void parseAddress(String address, Callback<byte[], IllegalArgumentException> cb) {
+!!!!! >         Resolver.getDefault().resolve(address, new Callback<>() {
+!!!!! >             @Override
+!!!!! >             protected void onSucceeded(IP value) {
+!!!!! >                 cb.succeeded(value.getAddress());
+!!!!! >             }
+!!!!! > 
+!!!!! >             @Override
+!!!!! >             protected void onFailed(UnknownHostException err) {
+!!!!! >                 cb.failed(new IllegalArgumentException("unknown ip " + address));
+!!!!! >             }
+!!!!! >         });
+!!!!! >     }
+!!!!! > 
+!!!!! >     public static byte[] blockParseAddress(String address) throws IllegalArgumentException {
+!!!!! >         BlockCallback<byte[], IllegalArgumentException> cb = new BlockCallback<>();
+!!!!! >         parseAddress(address, cb);
+!!!!! >         return cb.block();
+!!!!! >     }
+!!!!! >
+!!!!! diff return code 1 !!!!!
+
+##### files are the same: /java/io/vproxy/vfd/WritableByteStream.java #####
+!!!!! diff /java/io/vproxy/vfd/IPPort.java !!!!!
+!!!!! 7c7
+!!!!! < public class IPPort {
+!!!!! ---
+!!!!! > public class IPPort extends SockAddr {
+!!!!! diff return code 1 !!!!!
+
+##### files are the same: /java/io/vproxy/vfd/IPv6.java #####
+##### files are the same: /java/io/vproxy/vfd/IPv4.java #####
+##### files are the same: /java/io/vproxy/vfd/ReadableByteStream.java #####
+##### files are the same: /java/io/vproxy/vfd/MacAddress.java #####
+##### files are the same: /java/io/vproxy/vpacket/PacketDataBuffer.java #####
+##### files are the same: /java/io/vproxy/vpacket/ArpPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/Ipv6Packet.java #####
+##### files are the same: /java/io/vproxy/vpacket/AbstractIpPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/IcmpPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/UdpPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/tuples/PacketFullTuple.java #####
+##### files are the same: /java/io/vproxy/vpacket/VXLanPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/EthernetPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/Ipv4Packet.java #####
+##### files are the same: /java/io/vproxy/vpacket/TcpPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/dhcp/options/PadOption.java #####
+##### files are the same: /java/io/vproxy/vpacket/dhcp/options/EndOption.java #####
+##### files are the same: /java/io/vproxy/vpacket/dhcp/options/ParameterRequestListOption.java #####
+##### files are the same: /java/io/vproxy/vpacket/dhcp/options/MessageTypeOption.java #####
+##### files are the same: /java/io/vproxy/vpacket/dhcp/options/DNSOption.java #####
+##### files are the same: /java/io/vproxy/vpacket/dhcp/DHCPOption.java #####
+##### files are the same: /java/io/vproxy/vpacket/dhcp/DHCPPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/PartialPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/AbstractPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/TransportPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/DNSRecord.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/DNSResource.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/DNSPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/rdata/TXT.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/rdata/AAAA.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/rdata/CNAME.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/rdata/RData.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/rdata/PTR.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/rdata/SRV.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/rdata/A.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/Formatter.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/DNSClass.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/InvalidDNSPacketException.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/DNSType.java #####
+##### files are the same: /java/io/vproxy/vpacket/dns/DNSQuestion.java #####
+##### files are the same: /java/io/vproxy/vpacket/PacketBytes.java #####
+##### files are the same: /java/io/vproxy/base/connection/Protocol.java #####
+##### files are the same: /java/io/vproxy/base/util/ringbuffer/AbstractRingBuffer.java #####
+##### files are the same: /java/io/vproxy/base/util/ringbuffer/ByteBufferRingBuffer.java #####
+##### files are the same: /java/io/vproxy/base/util/ringbuffer/AbstractUnwrapByteBufferRingBuffer.java #####
+##### files are the same: /java/io/vproxy/base/util/ringbuffer/SimpleRingBuffer.java #####
+##### files are the same: /java/io/vproxy/base/util/ringbuffer/AbstractUnwrapRingBuffer.java #####
+##### files are the same: /java/io/vproxy/base/util/ringbuffer/AbstractWrapRingBuffer.java #####
+##### files are the same: /java/io/vproxy/base/util/ringbuffer/ProxyOutputRingBuffer.java #####
+##### files are the same: /java/io/vproxy/base/util/ringbuffer/AbstractWrapByteBufferRingBuffer.java #####
+##### files are the same: /java/io/vproxy/base/util/misc/IntMatcher.java #####
+##### files are the same: /java/io/vproxy/base/util/NetworkV6.java #####
+##### files are the same: /java/io/vproxy/base/util/net/PortPool.java #####
+##### files are the same: /java/io/vproxy/base/util/net/Nic.java #####
+!!!!! diff /java/io/vproxy/base/util/net/IPPortPool.java !!!!!
+!!!!! 4c4
+!!!!! < import vjson.parser.ParserUtils;
+!!!!! ---
+!!!!! > import io.vproxy.dep.vjson.parser.ParserUtils;
+!!!!! diff return code 1 !!!!!
+
+##### files are the same: /java/io/vproxy/base/util/net/SNatIPPortPool.java #####
+##### files are the same: /java/io/vproxy/base/util/ByteBufferEx.java #####
+##### files are the same: /java/io/vproxy/base/util/Consts.java #####
+##### files are the same: /java/io/vproxy/base/util/direct/DirectMemoryUtils.java #####
+##### files are the same: /java/io/vproxy/base/util/direct/DirectByteBuffer.java #####
+##### files are the same: /java/io/vproxy/base/util/objectpool/CursorList.java #####
+##### files are the same: /java/io/vproxy/base/util/objectpool/ConcurrentObjectPool.java #####
+##### files are the same: /java/io/vproxy/base/util/objectpool/PrototypeObjectList.java #####
+##### files are the same: /java/io/vproxy/base/util/objectpool/GarbageFree.java #####
+##### files are the same: /java/io/vproxy/base/util/web/HttpStatusCodeReasonMap.java #####
+##### files are the same: /java/io/vproxy/base/util/web/ErrorPages.java #####
+##### files are the same: /java/io/vproxy/base/util/web/ClasspathResourceHolder.java #####
+##### files are the same: /java/io/vproxy/base/util/Network.java #####
+!!!!! diff /java/io/vproxy/base/util/Logger.java !!!!!
+!!!!! 6a7,11
+!!!!! > import io.vproxy.base.util.thread.VProxyThread;
+!!!!! > import io.vproxy.vfd.DatagramFD;
+!!!!! > import io.vproxy.vfd.FDProvider;
+!!!!! > import io.vproxy.vfd.IP;
+!!!!! > import io.vproxy.vfd.IPPort;
+!!!!! 7a13,14
+!!!!! > import java.io.IOException;
+!!!!! > import java.nio.ByteBuffer;
+!!!!! 16a24
+!!!!! >     private static DatagramFD logChannel;
+!!!!! 95c103
+!!!!! <             System.currentTimeMillis(),
+!!!!! ---
+!!!!! >             FDProvider.get().currentTimeMillis(),
+!!!!! 112c120
+!!!!! <             String debugInfo = null;
+!!!!! ---
+!!!!! >             String debugInfo = VProxyThread.current().debugInfo;
+!!!!! 128c136
+!!!!! <             System.currentTimeMillis(),
+!!!!! ---
+!!!!! >             FDProvider.get().currentTimeMillis(),
+!!!!! 158c166
+!!!!! <             System.currentTimeMillis(),
+!!!!! ---
+!!!!! >             FDProvider.get().currentTimeMillis(),
+!!!!! 168c176
+!!!!! <             System.currentTimeMillis(),
+!!!!! ---
+!!!!! >             FDProvider.get().currentTimeMillis(),
+!!!!! 179c187
+!!!!! <             System.currentTimeMillis(),
+!!!!! ---
+!!!!! >             FDProvider.get().currentTimeMillis(),
+!!!!! 189c197
+!!!!! <             System.currentTimeMillis(),
+!!!!! ---
+!!!!! >             FDProvider.get().currentTimeMillis(),
+!!!!! 206a215,263
+!!!!! >     public static void probe(String msg) {
+!!!!! >         String threadName = Thread.currentThread().getName();
+!!!!! >         var record = new LogRecord(threadName, null,
+!!!!! >             LogLevel.PROBE,
+!!!!! >             LogType.PROBE,
+!!!!! >             FDProvider.get().currentTimeMillis(),
+!!!!! >             msg,
+!!!!! >             null);
+!!!!! >         String log = record.toStringNoColor(stackTraceOn);
+!!!!! >         DatagramFD chnl = getLogChannel();
+!!!!! >         try {
+!!!!! >             chnl.send(ByteBuffer.wrap(log.getBytes()), getLogAddress());
+!!!!! >         } catch (IOException e) {
+!!!!! >             Logger.shouldNotHappen("sending log message failed", e);
+!!!!! >         }
+!!!!! >     }
+!!!!! > 
+!!!!! >     private static DatagramFD getLogChannel() {
+!!!!! >         if (logChannel == null) {
+!!!!! >             try {
+!!!!! >                 logChannel = FDProvider.get().openDatagramFD();
+!!!!! >                 logChannel.configureBlocking(false);
+!!!!! >             } catch (IOException e) {
+!!!!! >                 shouldNotHappen("open datagram channel as log channel failed", e);
+!!!!! >                 if (logChannel != null) {
+!!!!! >                     try {
+!!!!! >                         logChannel.close();
+!!!!! >                     } catch (IOException ignore) {
+!!!!! >                     }
+!!!!! >                 }
+!!!!! >                 logChannel = null;
+!!!!! >                 throw new RuntimeException(e);
+!!!!! >             }
+!!!!! >         }
+!!!!! >         if (!logChannel.isOpen()) {
+!!!!! >             try {
+!!!!! >                 logChannel.close();
+!!!!! >             } catch (IOException ignore) {
+!!!!! >             }
+!!!!! >             logChannel = null;
+!!!!! >             return getLogChannel();
+!!!!! >         }
+!!!!! >         return logChannel;
+!!!!! >     }
+!!!!! > 
+!!!!! >     private static IPPort getLogAddress() {
+!!!!! >         return new IPPort(IP.from(new byte[]{127, 0, 0, 1}), 23456);
+!!!!! >     }
+!!!!! >
+!!!!! diff return code 1 !!!!!
+
+##### files are the same: /java/io/vproxy/base/util/IPType.java #####
+##### files are the same: /java/io/vproxy/base/util/io/ArrayInputStream.java #####
+##### files are the same: /java/io/vproxy/base/util/io/ArrayOutputStream.java #####
+!!!!! diff /java/io/vproxy/base/util/Utils.java !!!!!
+!!!!! 8a9
+!!!!! > import io.vproxy.base.util.thread.VProxyThread;
+!!!!! 9a11
+!!!!! > import io.vproxy.vfd.FDProvider;
+!!!!! 234c236
+!!!!! <             (System.currentTimeMillis() / 60_000 // remove millis and seconds
+!!!!! ---
+!!!!! >             (FDProvider.get().currentTimeMillis() / 60_000 // remove millis and seconds
+!!!!! 636c638
+!!!!! <         new Thread(() -> {
+!!!!! ---
+!!!!! >         VProxyThread.create(() -> {
+!!!!! 662c664
+!!!!! <         new Thread(() -> {
+!!!!! ---
+!!!!! >         VProxyThread.create(() -> {
+!!!!! diff return code 1 !!!!!
+
+##### files are the same: /java/io/vproxy/base/util/ToByteArray.java #####
+##### files are the same: /java/io/vproxy/base/util/bytearray/UnmodifiableByteArray.java #####
+##### files are the same: /java/io/vproxy/base/util/bytearray/PersistByteArray.java #####
+##### files are the same: /java/io/vproxy/base/util/bytearray/SubByteArray.java #####
+##### files are the same: /java/io/vproxy/base/util/bytearray/AbstractByteArray.java #####
+##### files are the same: /java/io/vproxy/base/util/bytearray/SimpleByteArray.java #####
+##### files are the same: /java/io/vproxy/base/util/bytearray/CompositeByteArray.java #####
+##### files are the same: /java/io/vproxy/base/util/bytearray/OneByteArray.java #####
+##### files are the same: /java/io/vproxy/base/util/bytearray/ByteArrayBuilder.java #####
+##### files are the same: /java/io/vproxy/base/util/time/impl/TimeElemImpl.java #####
+##### files are the same: /java/io/vproxy/base/util/time/impl/TimeQueueImpl.java #####
+##### files are the same: /java/io/vproxy/base/util/time/TimeElem.java #####
+##### files are the same: /java/io/vproxy/base/util/time/TimeQueue.java #####
+!!!!! diff /java/io/vproxy/base/util/ratelimit/StatisticsRateLimiter.java !!!!!
+!!!!! 2a3
+!!!!! > import io.vproxy.base.Config;
+!!!!! 22c23
+!!!!! <         lastTs = formatTs(System.currentTimeMillis());
+!!!!! ---
+!!!!! >         lastTs = formatTs(Config.currentTimestamp);
+!!!!! 90c91
+!!!!! <         long current = System.currentTimeMillis();
+!!!!! ---
+!!!!! >         long current = Config.currentTimestamp;
+!!!!! diff return code 1 !!!!!
+
+##### files are the same: /java/io/vproxy/base/util/ratelimit/RateLimiter.java #####
+!!!!! diff /java/io/vproxy/base/util/ratelimit/SimpleRateLimiter.java !!!!!
+!!!!! 2a3,4
+!!!!! > import io.vproxy.base.Config;
+!!!!! > 
+!!!!! 14c16
+!!!!! <         this.lastTs = System.currentTimeMillis();
+!!!!! ---
+!!!!! >         this.lastTs = Config.currentTimestamp;
+!!!!! 23c25
+!!!!! <         long currentTs = System.currentTimeMillis();
+!!!!! ---
+!!!!! >         long currentTs = Config.currentTimestamp;
+!!!!! diff return code 1 !!!!!
+
+!!!!! diff /java/io/vproxy/base/util/coll/Tree.java !!!!!
+!!!!! 3c3
+!!!!! < import vjson.util.ObjectBuilder;
+!!!!! ---
+!!!!! > import io.vproxy.dep.vjson.util.ObjectBuilder;
+!!!!! diff return code 1 !!!!!
+
+##### files are the same: /java/io/vproxy/base/util/coll/Tuple4.kt #####
+##### files are the same: /java/io/vproxy/base/util/coll/AppendableMap.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/AppendingList.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/IntRanges.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/ReusableListIterator.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/ConcurrentHashSet.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/CopyOnWriteHolder.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/WeakHashSet.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/IntMap.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/Tuple.kt #####
+##### files are the same: /java/io/vproxy/base/util/coll/RingQueue.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/LRUMap.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/Tuple3.kt #####
+##### files are the same: /java/io/vproxy/base/util/coll/ReItrLinkedList.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/ReusableIterator.java #####
+##### files are the same: /java/io/vproxy/base/util/LogType.java #####
+##### files are the same: /java/io/vproxy/base/util/Networks.java #####
+##### files are the same: /java/io/vproxy/base/util/RingBufferETHandler.java #####
+##### files are the same: /java/io/vproxy/base/util/unsafe/JDKUnsafeFallback.java #####
+##### files are the same: /java/io/vproxy/base/util/unsafe/JDKUnsafe.java #####
+##### files are the same: /java/io/vproxy/base/util/unsafe/JDKUnsafeImpl.java #####
+##### files are the same: /java/io/vproxy/base/util/unsafe/SunUnsafe.java #####
+##### files are the same: /java/io/vproxy/base/util/MainUtils.java #####
+##### files are the same: /java/io/vproxy/base/util/RingBuffer.java #####
+##### files are the same: /java/io/vproxy/base/util/kt/KT.java #####
+##### files are the same: /java/io/vproxy/base/util/nio/ByteArrayChannel.java #####
+##### files are the same: /java/io/vproxy/base/util/log/LogRecord.java #####
+##### files are the same: /java/io/vproxy/base/util/log/LogHandler.java #####
+##### files are the same: /java/io/vproxy/base/util/log/LogLevel.java #####
+##### files are the same: /java/io/vproxy/base/util/log/LogDispatcher.java #####
+##### files are the same: /java/io/vproxy/base/util/log/ProbeType.java #####
+##### files are the same: /java/io/vproxy/base/util/log/STDOutLogHandler.java #####
+##### files are the same: /java/io/vproxy/base/util/promise/Promise.java #####
+##### files are the same: /java/io/vproxy/base/util/promise/ThrowableFunction.java #####
+##### files are the same: /java/io/vproxy/base/util/promise/ThrowableConsumer.java #####
+##### files are the same: /java/io/vproxy/base/util/NetworkV4.java #####
+##### files are the same: /java/io/vproxy/base/util/display/TableBuilder.java #####
+##### files are the same: /java/io/vproxy/base/util/display/TreeBuilder.java #####
+##### files are the same: /java/io/vproxy/base/util/display/TR.java #####
+##### files are the same: /java/io/vproxy/base/util/callback/BlockCallback.java #####
+##### files are the same: /java/io/vproxy/base/util/callback/Callback.java #####
+##### files are the same: /java/io/vproxy/base/util/callback/JoinCallback.java #####
+##### files are the same: /java/io/vproxy/base/util/OS.java #####
+##### files are the same: /java/io/vproxy/base/util/ByteArray.java #####
+##### files are the same: /java/io/vproxy/base/util/bitwise/BitwiseGeneralMatcher.java #####
+##### files are the same: /java/io/vproxy/base/util/bitwise/BitwiseIntMatcher.java #####
+##### files are the same: /java/io/vproxy/base/util/bitwise/BitwiseNetworkMatcher.java #####
+##### files are the same: /java/io/vproxy/base/util/bitwise/BitwiseIPv6Matcher.java #####
+##### files are the same: /java/io/vproxy/base/util/bitwise/BitwiseMatcher.java #####
+##### files are the same: /java/io/vproxy/base/util/bitwise/BitwiseIPv4Matcher.java #####
+##### files are the same: /java/io/vproxy/base/util/bitwise/BitwiseMacAddressMatcher.java #####
+##### files are the same: /java/io/vproxy/base/util/Lock.java #####
+##### files are the same: /java/io/vproxy/base/util/exception/NoException.java #####
+##### files are the same: /java/io/vproxy/base/util/exception/ConflictException.java #####
+##### files are the same: /java/io/vproxy/base/util/exception/StillRunningException.java #####
+##### files are the same: /java/io/vproxy/base/util/exception/AlreadyExistException.java #####
+##### files are the same: /java/io/vproxy/base/util/exception/NotFoundException.java #####
+##### files are the same: /java/io/vproxy/base/util/exception/XException.java #####
+##### files are the same: /java/io/vproxy/base/util/exception/ClosedException.java #####
+##### files are the same: /java/io/vproxy/base/util/Version.java #####
+##### files are the same: /java/io/vproxy/base/util/functional/BooleanSupplierEx.java #####
+##### files are the same: /java/io/vproxy/base/util/functional/ConsumerEx.java #####
+##### files are the same: /java/io/vproxy/base/util/functional/FunctionEx.java #####
+##### files are the same: /java/io/vproxy/base/util/anno/CriticalNative.java #####
+##### files are the same: /java/io/vproxy/base/util/anno/ThreadSafe.java #####
+##### files are the same: /java/io/vproxy/base/util/anno/Comment.java #####
+##### files are the same: /java/io/vproxy/base/util/anno/Blocking.java #####
+##### files are the same: /java/io/vproxy/base/util/anno/Nullable.java #####
+!!!!! diff /java/io/vproxy/base/GlobalInspection.java !!!!!
+!!!!! 6a7,9
+!!!!! > import io.vproxy.base.selector.SelectorEventLoop;
+!!!!! > import io.vproxy.base.selector.wrap.FDInspection;
+!!!!! > import io.vproxy.base.selector.wrap.VirtualFD;
+!!!!! 8a12,13
+!!!!! > import io.vproxy.base.util.callback.Callback;
+!!!!! > import io.vproxy.base.util.callback.RunOnLoopCallback;
+!!!!! 9a15,26
+!!!!! > import io.vproxy.base.util.coll.ConcurrentHashSet;
+!!!!! > import io.vproxy.base.util.display.TR;
+!!!!! > import io.vproxy.base.util.display.TableBuilder;
+!!!!! > import io.vproxy.base.util.display.TreeBuilder;
+!!!!! > import io.vproxy.base.util.exception.NoException;
+!!!!! > import io.vproxy.base.util.thread.VProxyThread;
+!!!!! > import io.vproxy.dep.vjson.simple.SimpleString;
+!!!!! > import io.vproxy.vfd.FD;
+!!!!! > import io.vproxy.vfd.NetworkFD;
+!!!!! > import io.vproxy.vfd.ServerSocketFD;
+!!!!! > import io.vproxy.vfd.SockAddr;
+!!!!! > import io.vproxy.vfd.posix.PosixFD;
+!!!!! 11,13c28
+!!!!! < import java.util.Collections;
+!!!!! < import java.util.HashMap;
+!!!!! < import java.util.Map;
+!!!!! ---
+!!!!! > import java.util.*;
+!!!!! 14a30
+!!!!! > import java.util.function.Consumer;
+!!!!! 29a46,51
+!!!!! >     private final Counter sslUnwrapTaskCount;
+!!!!! >     private final Counter sslUnwrapTaskTimeMillisTotal;
+!!!!! >     private final Gauge threadNumberCurrent;
+!!!!! > 
+!!!!! >     private final ConcurrentHashSet<SelectorEventLoop> runningLoops = new ConcurrentHashSet<>();
+!!!!! >     private final ConcurrentHashSet<VProxyThread> runningThreads = new ConcurrentHashSet<>();
+!!!!! 58a81,92
+!!!!! >         sslUnwrapTaskCount = new Counter("ssl_unwrap_task_count", new AppendableMap<>()
+!!!!! >             .appendAll(extraLabels));
+!!!!! >         metrics.add(sslUnwrapTaskCount);
+!!!!! > 
+!!!!! >         sslUnwrapTaskTimeMillisTotal = new Counter("ssl_unwrap_task_time_millis_total", new AppendableMap<>()
+!!!!! >             .appendAll(extraLabels));
+!!!!! >         metrics.add(sslUnwrapTaskTimeMillisTotal);
+!!!!! > 
+!!!!! >         threadNumberCurrent = new Gauge("thread_number_current", new AppendableMap<>()
+!!!!! >             .appendAll(extraLabels));
+!!!!! >         metrics.add(threadNumberCurrent);
+!!!!! > 
+!!!!! 123a158,184
+!!!!! >     public void sslUnwrapTask(long costMillis) {
+!!!!! >         sslUnwrapTaskCount.incr(1);
+!!!!! >         sslUnwrapTaskTimeMillisTotal.incr(costMillis);
+!!!!! >     }
+!!!!! > 
+!!!!! >     public Runnable wrapThread(Runnable r) {
+!!!!! >         return () -> {
+!!!!! >             VProxyThread vt = (VProxyThread) Thread.currentThread();
+!!!!! >             runningThreads.add(vt);
+!!!!! >             threadNumberCurrent.incr(1);
+!!!!! >             try {
+!!!!! >                 r.run();
+!!!!! >             } finally {
+!!!!! >                 threadNumberCurrent.decr(1);
+!!!!! >                 runningThreads.remove(vt);
+!!!!! >             }
+!!!!! >         };
+!!!!! >     }
+!!!!! > 
+!!!!! >     public void registerSelectorEventLoop(SelectorEventLoop loop) {
+!!!!! >         runningLoops.add(loop);
+!!!!! >     }
+!!!!! > 
+!!!!! >     public void deregisterSelectorEventLoop(SelectorEventLoop loop) {
+!!!!! >         runningLoops.remove(loop);
+!!!!! >     }
+!!!!! > 
+!!!!! 126a188,387
+!!!!! > 
+!!!!! >     public String getStackTraces() {
+!!!!! >         var threads = new HashSet<>(runningThreads);
+!!!!! >         StringBuilder sb = new StringBuilder();
+!!!!! >         for (var vt : threads) {
+!!!!! >             var name = new SimpleString(vt.thread().getName()).stringify();
+!!!!! >             var tid = vt.thread().getId();
+!!!!! >             var state = vt.thread().getState().name();
+!!!!! >             sb.append(name).append(" ").append("tid=").append(tid).append("\n")
+!!!!! >                 .append("   java.lang.Thread.State: ").append(state).append("\n");
+!!!!! >             var stacks = vt.thread().getStackTrace();
+!!!!! >             if (stacks.length != 0) {
+!!!!! >                 for (var s : stacks) {
+!!!!! >                     sb.append("\tat ").append(s).append("\n");
+!!!!! >                 }
+!!!!! >             }
+!!!!! >             sb.append("\n");
+!!!!! >         }
+!!!!! >         return sb.toString();
+!!!!! >     }
+!!!!! > 
+!!!!! >     public void getOpenFDs(Consumer<String> cb) {
+!!!!! >         var loops = new HashSet<>(runningLoops);
+!!!!! >         TableBuilder table = new TableBuilder();
+!!!!! >         var tr = table.tr();
+!!!!! >         tr.td("TID").td("WATCHED").td("FIRED").td("FD").td("VIRTUAL").td("HYBRID").td("LOCAL").td("REMOTE").td("REAL").td("REAL-VIRTUAL").td("REAL-LOCAL").td("REAL-REMOTE");
+!!!!! >         var ite = loops.iterator();
+!!!!! >         var callback = new RunOnLoopCallback<>(new Callback<String, NoException>() {
+!!!!! >             @Override
+!!!!! >             protected void onSucceeded(String value) {
+!!!!! >                 cb.accept(value);
+!!!!! >             }
+!!!!! > 
+!!!!! >             @Override
+!!!!! >             protected void onFailed(NoException err) {
+!!!!! >             }
+!!!!! >         });
+!!!!! >         recursiveGetOpenFds(ite, table, callback::succeeded);
+!!!!! >     }
+!!!!! > 
+!!!!! >     private void recursiveGetOpenFds(Iterator<SelectorEventLoop> ite, TableBuilder table, Consumer<String> cb) {
+!!!!! >         if (!ite.hasNext()) {
+!!!!! >             cb.accept(table.toString());
+!!!!! >             return;
+!!!!! >         }
+!!!!! >         var loop = ite.next();
+!!!!! >         var thread = loop.getRunningThread();
+!!!!! >         if (thread == null) { // not running
+!!!!! >             recursiveGetOpenFds(ite, table, cb);
+!!!!! >             return;
+!!!!! >         }
+!!!!! >         var set = new HashSet<FDInspection>();
+!!!!! >         var currentLoop = SelectorEventLoop.current();
+!!!!! >         loop.copyChannels(set, () -> currentLoop.runOnLoop(() -> {
+!!!!! >             for (var f : set) {
+!!!!! >                 var tr = table.tr();
+!!!!! >                 tr.td(thread.getId() + "");
+!!!!! >                 var fd = f.fd;
+!!!!! >                 tr.td(f.watchedEvents == null ? "-" : f.watchedEvents.toString());
+!!!!! >                 tr.td(f.firedEvents == null ? "-" : f.firedEvents.toString());
+!!!!! >                 appendFDType(tr, fd);
+!!!!! >                 tr.td(fd instanceof VirtualFD ? "Y" : "N");
+!!!!! >                 tr.td(!(fd instanceof VirtualFD) && fd.real() instanceof VirtualFD ? "Y" : "N");
+!!!!! >                 appendLocalRemote(tr, fd);
+!!!!! >                 FD real = null;
+!!!!! >                 try {
+!!!!! >                     real = fd.real();
+!!!!! >                 } catch (Throwable ignore) {
+!!!!! >                 }
+!!!!! >                 if (real != null && real != fd) {
+!!!!! >                     appendFDType(tr, real);
+!!!!! >                     tr.td(real instanceof VirtualFD ? "Y" : "N");
+!!!!! >                     appendLocalRemote(tr, real);
+!!!!! >                 } else {
+!!!!! >                     tr.td("-").td("-").td("-").td("-");
+!!!!! >                 }
+!!!!! >             }
+!!!!! >             recursiveGetOpenFds(ite, table, cb);
+!!!!! >         }));
+!!!!! >     }
+!!!!! > 
+!!!!! >     private void appendFDType(TR tr, FD fd) {
+!!!!! >         if (fd instanceof PosixFD) {
+!!!!! >             tr.td(fd.getClass().getSimpleName() + ":" + ((PosixFD) fd).getFD());
+!!!!! >         } else {
+!!!!! >             tr.td(fd.getClass().getSimpleName());
+!!!!! >         }
+!!!!! >     }
+!!!!! > 
+!!!!! >     private void appendAddress(TR tr, SockAddr sockAddr) {
+!!!!! >         String s = sockAddr.toString();
+!!!!! >         if (s.startsWith("/")) {
+!!!!! >             s = s.substring(1);
+!!!!! >         }
+!!!!! >         tr.td(s);
+!!!!! >     }
+!!!!! > 
+!!!!! >     @SuppressWarnings("rawtypes")
+!!!!! >     private void appendLocalRemote(TR tr, FD fd) {
+!!!!! >         if (fd instanceof NetworkFD) {
+!!!!! >             SockAddr local = null;
+!!!!! >             SockAddr remote = null;
+!!!!! >             try {
+!!!!! >                 local = ((NetworkFD) fd).getLocalAddress();
+!!!!! >             } catch (Throwable ignore) {
+!!!!! >             }
+!!!!! >             try {
+!!!!! >                 remote = ((NetworkFD) fd).getRemoteAddress();
+!!!!! >             } catch (Throwable ignore) {
+!!!!! >             }
+!!!!! >             if (local == null) {
+!!!!! >                 tr.td("-");
+!!!!! >             } else {
+!!!!! >                 appendAddress(tr, local);
+!!!!! >             }
+!!!!! >             if (remote == null) {
+!!!!! >                 tr.td("-");
+!!!!! >             } else {
+!!!!! >                 appendAddress(tr, remote);
+!!!!! >             }
+!!!!! >         } else if (fd instanceof ServerSocketFD) {
+!!!!! >             SockAddr local = null;
+!!!!! >             try {
+!!!!! >                 local = ((ServerSocketFD) fd).getLocalAddress();
+!!!!! >             } catch (Throwable ignore) {
+!!!!! >             }
+!!!!! >             if (local != null) {
+!!!!! >                 appendAddress(tr, local);
+!!!!! >             }
+!!!!! >         } else {
+!!!!! >             tr.td("-").td("-");
+!!!!! >         }
+!!!!! >     }
+!!!!! > 
+!!!!! >     public void getOpenFDsTree(Consumer<String> cb) {
+!!!!! >         var loops = new HashSet<>(runningLoops);
+!!!!! >         TreeBuilder tree = new TreeBuilder();
+!!!!! >         var ite = loops.iterator();
+!!!!! >         var callback = new RunOnLoopCallback<>(new Callback<String, NoException>() {
+!!!!! >             @Override
+!!!!! >             protected void onSucceeded(String value) {
+!!!!! >                 cb.accept(value);
+!!!!! >             }
+!!!!! > 
+!!!!! >             @Override
+!!!!! >             protected void onFailed(NoException err) {
+!!!!! >             }
+!!!!! >         });
+!!!!! >         recursiveGetOpenFdsTree(ite, tree, callback::succeeded);
+!!!!! >     }
+!!!!! > 
+!!!!! >     private void recursiveGetOpenFdsTree(Iterator<SelectorEventLoop> ite, TreeBuilder tree, Consumer<String> cb) {
+!!!!! >         if (!ite.hasNext()) {
+!!!!! >             cb.accept(tree.toString());
+!!!!! >             return;
+!!!!! >         }
+!!!!! >         var loop = ite.next();
+!!!!! >         var thread = loop.getRunningThread();
+!!!!! >         if (thread == null) { // not running
+!!!!! >             recursiveGetOpenFdsTree(ite, tree, cb);
+!!!!! >             return;
+!!!!! >         }
+!!!!! >         var set = new HashSet<FDInspection>();
+!!!!! >         var currentLoop = SelectorEventLoop.current();
+!!!!! >         loop.copyChannels(set, () -> currentLoop.runOnLoop(() -> {
+!!!!! >             var branch = tree.branch(thread.getName() + "#" + thread.getId());
+!!!!! >             getOpenFDsTree(branch, set);
+!!!!! >             recursiveGetOpenFdsTree(ite, tree, cb);
+!!!!! >         }));
+!!!!! >     }
+!!!!! > 
+!!!!! >     private void getOpenFDsTree(TreeBuilder.BranchBuilder branch, HashSet<FDInspection> set) {
+!!!!! >         var root = new HashSet<FDInspection>();
+!!!!! >         for (var fd : set) {
+!!!!! >             boolean isSub = false;
+!!!!! >             for (var fd2 : set) {
+!!!!! >                 if (fd2.fd.contains(fd.fd)) {
+!!!!! >                     isSub = true;
+!!!!! >                     break;
+!!!!! >                 }
+!!!!! >             }
+!!!!! >             if (!isSub) {
+!!!!! >                 root.add(fd);
+!!!!! >             }
+!!!!! >         }
+!!!!! >         for (var fd : root) {
+!!!!! >             var br = branch.branch(fd.toString());
+!!!!! >             getOpenFDsTree(br, fd, set);
+!!!!! >         }
+!!!!! >     }
+!!!!! > 
+!!!!! >     private void getOpenFDsTree(TreeBuilder.BranchBuilder br, FDInspection fd, HashSet<FDInspection> set) {
+!!!!! >         var subSet = new HashSet<FDInspection>();
+!!!!! >         for (FDInspection fd2 : set) {
+!!!!! >             if (fd.fd.contains(fd2.fd)) {
+!!!!! >                 subSet.add(fd2);
+!!!!! >             }
+!!!!! >         }
+!!!!! >         getOpenFDsTree(br, subSet);
+!!!!! >     }
+!!!!! diff return code 1 !!!!!
+
+##### files are the same: /java/io/vproxy/base/prometheus/GaugeF.java #####
+##### files are the same: /java/io/vproxy/base/prometheus/Gauge.java #####
+!!!!! diff /java/io/vproxy/base/prometheus/Metric.java !!!!!
+!!!!! 3c3
+!!!!! < import vjson.simple.SimpleString;
+!!!!! ---
+!!!!! > import io.vproxy.dep.vjson.simple.SimpleString;
+!!!!! diff return code 1 !!!!!
+
+##### files are the same: /java/io/vproxy/base/prometheus/Counter.java #####
+##### files are the same: /java/io/vproxy/base/prometheus/Metrics.java #####
+##### commons missing: /java/io/vproxy/xdp/BPFMap.java #####
+##### commons missing: /java/io/vproxy/xdp/XDPSocket.java #####
+##### commons missing: /java/io/vproxy/xdp/SharedUMem.java #####
+##### commons missing: /java/io/vproxy/xdp/NativeXDP.java #####
+##### commons missing: /java/io/vproxy/xdp/BPFMode.java #####
+##### commons missing: /java/io/vproxy/xdp/UMem.java #####
+##### commons missing: /java/io/vproxy/xdp/ChunkPrototypeObjectList.java #####
+##### commons missing: /java/io/vproxy/xdp/Chunk.java #####
+##### commons missing: /java/io/vproxy/xdp/BPFObject.java #####
+##### commons missing: /java/io/vproxy/vfd/FDsWithTap.java #####
+##### commons missing: /java/io/vproxy/vfd/FDsWithCoreAffinity.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/VSocketAddress.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/Posix.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/PosixNetworkFD.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/PosixDatagramFD.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/PosixServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/PosixTapDatagramFD.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/SocketAddressIPv6.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/PosixSocketFD.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/GeneralPosix.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/Att.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/SocketAddressIPv4.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/FDInfo.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/UDPRecvResult.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/SocketAddressUDS.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/PosixInetNetworkFD.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/UnixDomainServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/PosixFDs.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/FDInfoPrototypeObjectList.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/PosixFD.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/UnixDomainSocketFD.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/AESelector.java #####
+##### commons missing: /java/io/vproxy/vfd/SockAddr.java #####
+##### commons missing: /java/io/vproxy/vfd/VFDConfig.java #####
+##### commons missing: /java/io/vproxy/vfd/UDSPath.java #####
+##### commons missing: /java/io/vproxy/vfd/AbstractDatagramFD.java #####
+##### commons missing: /java/io/vproxy/vfd/RegisterEntry.java #####
+##### commons missing: /java/io/vproxy/vfd/NetworkFD.java #####
+##### commons missing: /java/io/vproxy/vfd/EventSet.java #####
+##### commons missing: /java/io/vproxy/vfd/SocketFD.java #####
+##### commons missing: /java/io/vproxy/vfd/jdk/SocketChannelFD.java #####
+##### commons missing: /java/io/vproxy/vfd/jdk/ChannelSelector.java #####
+##### commons missing: /java/io/vproxy/vfd/jdk/ServerSocketChannelFD.java #####
+##### commons missing: /java/io/vproxy/vfd/jdk/DatagramChannelFD.java #####
+##### commons missing: /java/io/vproxy/vfd/jdk/ChannelFDs.java #####
+##### commons missing: /java/io/vproxy/vfd/jdk/ChannelFD.java #####
+##### commons missing: /java/io/vproxy/vfd/FDs.java #####
+##### commons missing: /java/io/vproxy/vfd/TapInfo.java #####
+##### commons missing: /java/io/vproxy/vfd/FDProvider.java #####
+##### commons missing: /java/io/vproxy/vfd/ServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/vfd/Event.java #####
+##### commons missing: /java/io/vproxy/vfd/TapDatagramFD.java #####
+##### commons missing: /java/io/vproxy/vfd/DatagramFD.java #####
+##### commons missing: /java/io/vproxy/vfd/FD.java #####
+##### commons missing: /java/io/vproxy/vfd/abs/AbstractBaseFD.java #####
+##### commons missing: /java/io/vproxy/vfd/SocketOptions.java #####
+##### commons missing: /java/io/vproxy/vfd/FDsWithPoll.java #####
+##### commons missing: /java/io/vproxy/vfd/TraceInvocationHandler.java #####
+##### commons missing: /java/io/vproxy/vfd/NoSockAddr.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/WindowsTapDatagramFD.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/Windows.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/WindowsFDs.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/GeneralWindows.java #####
+##### commons missing: /java/io/vproxy/vfd/SelectedEntry.java #####
+##### commons missing: /java/io/vproxy/vfd/FDSelector.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/udp/UdpListenEntry.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/udp/UdpEntry.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/udp/Datagram.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/udp/UdpListenHandler.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/udp/UdpNat.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/udp/UdpUtils.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpUtils.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/Segment.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpState.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/ConnectionHandler.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/ProxyProtocolHelper.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpTimeout.kt #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpEntry.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpNat.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpListenEntry.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpListenHandler.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/Conntrack.java #####
+##### commons missing: /java/io/vproxy/vpacket/VProxyEncryptedPacket.java #####
+##### commons missing: /java/io/vproxy/vmirror/MirrorContext.java #####
+##### commons missing: /java/io/vproxy/vmirror/MirrorData.java #####
+##### commons missing: /java/io/vproxy/vmirror/Mirror.java #####
+##### commons missing: /java/io/vproxy/vmirror/OriginConfig.java #####
+##### commons missing: /java/io/vproxy/vmirror/MirrorConfig.java #####
+##### commons missing: /java/io/vproxy/vmirror/MirrorDataFactory.java #####
+##### commons missing: /java/io/vproxy/vmirror/FilterConfig.java #####
+##### commons missing: /java/io/vproxy/base/selector/Handler.java #####
+##### commons missing: /java/io/vproxy/base/selector/SelectorEventLoop.java #####
+##### commons missing: /java/io/vproxy/base/selector/HandlerContext.java #####
+##### commons missing: /java/io/vproxy/base/selector/PeriodicEvent.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/StreamedServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/MethodForStreamedFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/StreamedFDHandler.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/MethodForFDs.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/StreamedArqUDPServerFDs.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/MethodForImplementation.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/StreamedFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/StreamedArqUDPClientFDs.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/FDInspection.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/blocking/BlockingDatagramFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/udp/DatagramSocketFDWrapper.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/udp/UDPBasedFDs.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/udp/UDPFDs.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/udp/ServerDatagramFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/file/FilePath.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/file/FileFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/WritableAware.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/VirtualFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/h2streamed/H2StreamedFDHandler.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/h2streamed/H2StreamedServerFDs.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/h2streamed/H2StreamedClientFDs.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/ClosedSelectorExceptionWithInfo.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/CancelledKeyExceptionWithInfo.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/AbstractBaseVirtualSocketFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/WrappedSelector.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/arqudp/ArqUDPServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/arqudp/ArqUDPHandler.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/arqudp/ArqUDPSocketFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/arqudp/ArqUDPBasedFDs.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/AbstractBaseVirtualServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/Kcp.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/mock/ByteBuf.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/mock/InternalLogger.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/mock/InternalLoggerFactory.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/mock/Recycler.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/mock/ByteBufAllocator.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/KCPServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/KCPHandler.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/KcpOutput.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/KCPSocketFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/KCPFDs.java #####
+##### commons missing: /java/io/vproxy/base/selector/TimerEvent.java #####
+##### commons missing: /java/io/vproxy/base/selector/package-info.java #####
+##### commons missing: /java/io/vproxy/base/connection/NetFlowRecorder.java #####
+##### commons missing: /java/io/vproxy/base/connection/ConnectableConnectionHandlerContext.java #####
+##### commons missing: /java/io/vproxy/base/connection/util/SSLHandshakeDoneConnectableConnectionHandler.java #####
+##### commons missing: /java/io/vproxy/base/connection/NetEventLoop.java #####
+##### commons missing: /java/io/vproxy/base/connection/ConnectableConnectionHandler.java #####
+##### commons missing: /java/io/vproxy/base/connection/ServerHandlerContext.java #####
+##### commons missing: /java/io/vproxy/base/connection/ConnectionHandlerContext.java #####
+##### commons missing: /java/io/vproxy/base/connection/ConnectionHandler.java #####
+##### commons missing: /java/io/vproxy/base/connection/Connector.java #####
+##### commons missing: /java/io/vproxy/base/connection/Connection.java #####
+##### commons missing: /java/io/vproxy/base/connection/ConnectorProvider.java #####
+##### commons missing: /java/io/vproxy/base/connection/ServerHandler.java #####
+##### commons missing: /java/io/vproxy/base/connection/ConnCloseHandler.java #####
+##### commons missing: /java/io/vproxy/base/connection/ConnectableConnection.java #####
+##### commons missing: /java/io/vproxy/base/connection/ConnectionOpts.java #####
+##### commons missing: /java/io/vproxy/base/connection/ServerSock.java #####
+##### commons missing: /java/io/vproxy/base/util/ringbuffer/ssl/SSLContextHolder.java #####
+##### commons missing: /java/io/vproxy/base/util/ringbuffer/ssl/SSL.java #####
+##### commons missing: /java/io/vproxy/base/util/ringbuffer/ssl/SSLEngineBuilder.java #####
+##### commons missing: /java/io/vproxy/base/util/ringbuffer/ssl/VSSLContext.java #####
+##### commons missing: /java/io/vproxy/base/util/ringbuffer/EncryptIVInDataWrapRingBuffer.java #####
+##### commons missing: /java/io/vproxy/base/util/ringbuffer/SSLWrapRingBuffer.java #####
+##### commons missing: /java/io/vproxy/base/util/ringbuffer/DecryptIVInDataUnwrapRingBuffer.java #####
+##### commons missing: /java/io/vproxy/base/util/ringbuffer/SSLUnwrapRingBuffer.java #####
+##### commons missing: /java/io/vproxy/base/util/ringbuffer/SSLUtils.java #####
+##### commons missing: /java/io/vproxy/base/util/Annotations.java #####
+##### commons missing: /java/io/vproxy/base/util/crypto/StreamingCFBCipher.java #####
+##### commons missing: /java/io/vproxy/base/util/crypto/CryptoUtils.java #####
+##### commons missing: /java/io/vproxy/base/util/crypto/Aes256Key.java #####
+##### commons missing: /java/io/vproxy/base/util/crypto/BlockCipherKey.java #####
+##### commons missing: /java/io/vproxy/base/util/file/FileWatcherHandler.java #####
+##### commons missing: /java/io/vproxy/base/util/file/FileWatcher.java #####
+##### commons missing: /java/io/vproxy/base/util/codec/AbstractParser.java #####
+##### commons missing: /java/io/vproxy/base/util/codec/AbstractDecoder.java #####
+##### commons missing: /java/io/vproxy/base/util/Timer.java #####
+##### commons missing: /java/io/vproxy/base/util/callback/RunOnLoopCallback.java #####
+##### commons missing: /java/io/vproxy/base/util/AnnotationKeys.java #####
+##### commons missing: /java/io/vproxy/base/util/thread/VProxyThreadJsonParserCacheHolder.java #####
+##### commons missing: /java/io/vproxy/base/util/thread/VProxyThread.java #####
+##### commons missing: /java/io/vproxy/base/util/thread/VProxyThreadImpl.java #####
+##### commons missing: /java/io/vproxy/base/redis/entity/RESPString.java #####
+##### commons missing: /java/io/vproxy/base/redis/entity/RESPError.java #####
+##### commons missing: /java/io/vproxy/base/redis/entity/RESPBulkString.java #####
+##### commons missing: /java/io/vproxy/base/redis/entity/RESPArray.java #####
+##### commons missing: /java/io/vproxy/base/redis/entity/RESP.java #####
+##### commons missing: /java/io/vproxy/base/redis/entity/RESPInline.java #####
+##### commons missing: /java/io/vproxy/base/redis/entity/RESPInteger.java #####
+##### commons missing: /java/io/vproxy/base/redis/entity/package-info.java #####
+##### commons missing: /java/io/vproxy/base/redis/RESPParser.java #####
+##### commons missing: /java/io/vproxy/base/redis/RESPProtocolHandler.java #####
+##### commons missing: /java/io/vproxy/base/redis/RESPContext.java #####
+##### commons missing: /java/io/vproxy/base/redis/RESPConfig.java #####
+##### commons missing: /java/io/vproxy/base/redis/application/RESPApplicationContext.java #####
+##### commons missing: /java/io/vproxy/base/redis/application/RESPApplication.java #####
+##### commons missing: /java/io/vproxy/base/redis/application/RESPCommand.java #####
+##### commons missing: /java/io/vproxy/base/redis/application/RESPApplicationConfig.java #####
+##### commons missing: /java/io/vproxy/base/redis/application/RESPApplicationHandler.java #####
+##### commons missing: /java/io/vproxy/base/redis/Serializer.java #####
+##### commons missing: /java/io/vproxy/base/redis/RESPHandler.java #####
+##### commons missing: /java/io/vproxy/base/redis/package-info.java #####
+##### commons missing: /java/io/vproxy/base/processor/http1/HttpContext.java #####
+##### commons missing: /java/io/vproxy/base/processor/http1/entity/Response.java #####
+##### commons missing: /java/io/vproxy/base/processor/http1/entity/Chunk.java #####
+##### commons missing: /java/io/vproxy/base/processor/http1/entity/Header.java #####
+##### commons missing: /java/io/vproxy/base/processor/http1/entity/Request.java #####
+##### commons missing: /java/io/vproxy/base/processor/http1/HttpProcessor.java #####
+##### commons missing: /java/io/vproxy/base/processor/http1/HttpSubContext.java #####
+##### commons missing: /java/io/vproxy/base/processor/http1/builder/HeaderBuilder.java #####
+##### commons missing: /java/io/vproxy/base/processor/http1/builder/RequestBuilder.java #####
+##### commons missing: /java/io/vproxy/base/processor/http1/builder/ResponseBuilder.java #####
+##### commons missing: /java/io/vproxy/base/processor/http1/builder/ChunkBuilder.java #####
+##### commons missing: /java/io/vproxy/base/processor/DummyConnectionDelegate.java #####
+##### commons missing: /java/io/vproxy/base/processor/ProcessorRegistry.java #####
+##### commons missing: /java/io/vproxy/base/processor/ProcessorProvider.java #####
+##### commons missing: /java/io/vproxy/base/processor/common/CommonInt32FramedProcessor.java #####
+##### commons missing: /java/io/vproxy/base/processor/Processor.java #####
+##### commons missing: /java/io/vproxy/base/processor/DefaultProcessorRegistry.java #####
+##### commons missing: /java/io/vproxy/base/processor/http/GeneralHttpContext.java #####
+##### commons missing: /java/io/vproxy/base/processor/http/GeneralHttpSubContext.java #####
+##### commons missing: /java/io/vproxy/base/processor/http/GeneralHttpProcessor.java #####
+##### commons missing: /java/io/vproxy/base/processor/HeadPayloadProcessor.java #####
+##### commons missing: /java/io/vproxy/base/processor/Hint.java #####
+##### commons missing: /java/io/vproxy/base/processor/OOSubContext.java #####
+##### commons missing: /java/io/vproxy/base/processor/OOContext.java #####
+##### commons missing: /java/io/vproxy/base/processor/ConnectionDelegate.java #####
+##### commons missing: /java/io/vproxy/base/processor/OOProcessor.java #####
+##### commons missing: /java/io/vproxy/base/processor/dubbo/DubboProcessor.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/hpack/SyncHeaderListener.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/hpack/HPack.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/entity/Setting.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/entity/Header.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/BinaryHttpSubContextCaster.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/WithPriority.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/PushPromiseFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/CancelPushFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/PingFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/RstStreamFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/WindowUpdateFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/GoAwayFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/DataFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/SettingsFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/HeadersFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/WithHeaders.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/ContinuationFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/MaxPushIdFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/PriorityFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/frame/Preface.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/BinaryHttpSubContext.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/Stream.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/StreamSession.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/StreamHolder.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/HttpFrame.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/HttpFrameType.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/BinaryHttpContext.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/BinaryHttpProcessor.java #####
+##### commons missing: /java/io/vproxy/base/processor/httpbin/HttpVersion.java #####
+##### commons missing: /java/io/vproxy/base/processor/ExceptionWithoutStackTrace.java #####
+##### commons missing: /java/io/vproxy/base/component/elgroup/dummy/PrototypeDelegateEventLoopGroup.java #####
+##### commons missing: /java/io/vproxy/base/component/elgroup/dummy/IEventLoopGroup.java #####
+##### commons missing: /java/io/vproxy/base/component/elgroup/dummy/DelegateEventLoopGroup.java #####
+##### commons missing: /java/io/vproxy/base/component/elgroup/EventLoopWrapper.java #####
+##### commons missing: /java/io/vproxy/base/component/elgroup/EventLoopAttach.java #####
+##### commons missing: /java/io/vproxy/base/component/elgroup/EventLoopGroupAttach.java #####
+##### commons missing: /java/io/vproxy/base/component/elgroup/EventLoopGroup.java #####
+##### commons missing: /java/io/vproxy/base/component/svrgroup/ServerListener.java #####
+##### commons missing: /java/io/vproxy/base/component/svrgroup/Method.java #####
+##### commons missing: /java/io/vproxy/base/component/svrgroup/ServerGroup.java #####
+##### commons missing: /java/io/vproxy/base/component/svrgroup/SvrHandleConnector.java #####
+##### commons missing: /java/io/vproxy/base/component/check/ConnectResult.java #####
+##### commons missing: /java/io/vproxy/base/component/check/CheckProtocol.java #####
+##### commons missing: /java/io/vproxy/base/component/check/HealthCheckHandler.java #####
+##### commons missing: /java/io/vproxy/base/component/check/HealthCheckClient.java #####
+##### commons missing: /java/io/vproxy/base/component/check/AnnotatedHcConfig.java #####
+##### commons missing: /java/io/vproxy/base/component/check/ConnectClient.java #####
+##### commons missing: /java/io/vproxy/base/component/check/HealthCheckConfig.java #####
+##### commons missing: /java/io/vproxy/base/protocol/ProtocolServerHandler.java #####
+##### commons missing: /java/io/vproxy/base/protocol/ProtocolServerConfig.java #####
+##### commons missing: /java/io/vproxy/base/protocol/ProtocolConnectionHandler.java #####
+##### commons missing: /java/io/vproxy/base/protocol/ProtocolHandler.java #####
+##### commons missing: /java/io/vproxy/base/protocol/SubProtocolHandlerContext.java #####
+##### commons missing: /java/io/vproxy/base/protocol/ProtocolHandlerContext.java #####
+##### commons missing: /java/io/vproxy/base/GlobalEvents.java #####
+##### commons missing: /java/io/vproxy/base/http/Http2Decoder.java #####
+##### commons missing: /java/io/vproxy/base/http/HttpReqParser.java #####
+##### commons missing: /java/io/vproxy/base/http/HttpContext.java #####
+##### commons missing: /java/io/vproxy/base/http/HttpProtocolHandler.java #####
+##### commons missing: /java/io/vproxy/base/http/HttpRespParser.java #####
+##### commons missing: /java/io/vproxy/base/http/connect/HttpConnectContext.java #####
+##### commons missing: /java/io/vproxy/base/http/connect/HttpConnectProtocolHandler.java #####
+##### commons missing: /java/io/vproxy/base/dhcp/DHCPClientHelper.java #####
+##### commons missing: /java/io/vproxy/base/Config.java #####
+##### commons missing: /java/io/vproxy/base/socks/AddressType.java #####
+##### commons missing: /java/io/vproxy/base/socks/Socks5ClientHandshake.java #####
+##### commons missing: /java/io/vproxy/base/dns/dnsserverlistgetter/GetDnsServerListFromConfigFile.java #####
+##### commons missing: /java/io/vproxy/base/dns/dnsserverlistgetter/GetDnsServerListFromDhcp.java #####
+##### commons missing: /java/io/vproxy/base/dns/dnsserverlistgetter/GetDnsServerListDefault.java #####
+##### commons missing: /java/io/vproxy/base/dns/DnsServerListGetter.java #####
+##### commons missing: /java/io/vproxy/base/dns/Resolver.java #####
+##### commons missing: /java/io/vproxy/base/dns/ResolveListener.java #####
+##### commons missing: /java/io/vproxy/base/dns/VResolver.java #####
+##### commons missing: /java/io/vproxy/base/dns/ServerGroupDNSClient.java #####
+##### commons missing: /java/io/vproxy/base/dns/Cache.java #####
+##### commons missing: /java/io/vproxy/base/dns/AbstractResolver.java #####
+##### commons missing: /java/io/vproxy/base/dns/DNSClient.java #####
