@@ -1,9 +1,11 @@
 plugins {
     id 'java-library'
     id 'org.jetbrains.kotlin.jvm' version '1.5.31'
+    id 'maven-publish'
+    id 'signing'
 }
 
-group 'io.vproxy.commons'
+group 'io.vproxy'
 version '0.0.1'
 
 repositories {
@@ -35,4 +37,69 @@ compileKotlin {
       freeCompilerArgs += '-Xassertions=jvm'
     }
     destinationDir = compileJava.destinationDir
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
+javadoc {
+    exclude '**/*.java'
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+            artifactId 'commons'
+
+            pom {
+                name = 'commons'
+                description = 'javafx library'
+                url = 'http://github.com/vproxy-tools/commons'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://github.com/vproxy-tools/commons/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'wkgcass'
+                        name = 'K.G. Wang'
+                        email = 'wkgcass@hotmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/vproxy-tools/commons.git'
+                    developerConnection = 'scm:git:git://github.com/vproxy-tools/commons.git'
+                    url = 'https://github.com/vproxy-tools/commons'
+                }
+            }
+            pom.withXml {
+                def pomNode = asNode()
+                pomNode.dependencies.'*'.findAll() {
+                    it.groupId.text() == 'org.jetbrains.kotlin'
+                }.each {
+                    it.parent().remove(it)
+                }
+            }
+        }
+    }
+    repositories {
+        maven {
+            credentials {
+                username 'wkgcass'
+                password System.getProperty("MavenPublishPassword")
+            }
+            def releasesRepoUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+            url = version.contains('-DEV') ? snapshotsRepoUrl : releasesRepoUrl
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.maven
 }
