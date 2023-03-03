@@ -1,6 +1,5 @@
 module io.vproxy.base {
     requires jdk.unsupported;
-    requires kotlin.stdlib;
     requires vjson;
 
     exports io.vproxy.base;
@@ -17,7 +16,6 @@ module io.vproxy.base {
     exports io.vproxy.base.util.exception;
     exports io.vproxy.base.util.functional;
     exports io.vproxy.base.util.io;
-    exports io.vproxy.base.util.kt;
     exports io.vproxy.base.util.log;
     exports io.vproxy.base.util.misc;
     exports io.vproxy.base.util.net;

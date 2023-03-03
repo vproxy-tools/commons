@@ -1,6 +1,5 @@
 plugins {
     id 'java-library'
-    id 'org.jetbrains.kotlin.jvm' version '1.5.31'
     id 'maven-publish'
     id 'signing'
 }
@@ -13,7 +12,7 @@ repositories {
 }
 
 dependencies {
-    api group: 'io.vproxy', name: 'vjson', version: '1.4.7'
+    api group: 'io.vproxy', name: 'vjson', version: '1.5.1'
 }
 
 compileJava {
@@ -22,22 +21,12 @@ compileJava {
     }
     options.compilerArgs << '--add-modules' << [
             'vjson',
-            'kotlin.stdlib',
     ].join(',')
     options.compilerArgs += '--add-exports=java.base/jdk.internal.misc=io.vproxy.base'
 }
 
 sourceCompatibility = 11.0
 targetCompatibility = 11.0
-
-compileKotlin {
-    kotlinOptions {
-      jvmTarget = '11'
-      freeCompilerArgs += '-Xjvm-default=enable'
-      freeCompilerArgs += '-Xassertions=jvm'
-    }
-    destinationDir = compileJava.destinationDir
-}
 
 java {
     withSourcesJar()
@@ -75,14 +64,6 @@ publishing {
                     connection = 'scm:git:git://github.com/vproxy-tools/commons.git'
                     developerConnection = 'scm:git:git://github.com/vproxy-tools/commons.git'
                     url = 'https://github.com/vproxy-tools/commons'
-                }
-            }
-            pom.withXml {
-                def pomNode = asNode()
-                pomNode.dependencies.'*'.findAll() {
-                    it.groupId.text() == 'org.jetbrains.kotlin'
-                }.each {
-                    it.parent().remove(it)
                 }
             }
         }
