@@ -10,7 +10,7 @@ If you want to use `vproxy-base`, you'll have to exclude the dependency of `comm
 **gradle**
 
 ```groovy
-implementation 'io.vproxy:commons:1.0.0'
+implementation 'io.vproxy:commons:1.0.1'
 ```
 
 **maven**
@@ -19,7 +19,7 @@ implementation 'io.vproxy:commons:1.0.0'
 <dependency>
   <groupId>io.vproxy</groupId>
   <artifactId>commons</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
