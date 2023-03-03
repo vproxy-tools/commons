@@ -13,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    api group: 'io.vproxy', name: 'vjson', version: '1.4.6'
+    api group: 'io.vproxy', name: 'vjson', version: '1.4.7'
 }
 
 compileJava {
