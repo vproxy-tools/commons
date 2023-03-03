@@ -1,16 +1,17 @@
 !!!!! diff /java/module-info.java !!!!!
-!!!!! 4c4,6
+!!!!! 3c3,6
 !!!!! <     requires vjson;
 !!!!! ---
+!!!!! >     requires kotlin.stdlib;
 !!!!! >     requires kotlinx.coroutines.core.jvm;
 !!!!! > 
 !!!!! >     requires transitive io.vproxy.dep;
-!!!!! 6a9,12
+!!!!! 5a9,12
 !!!!! >     exports io.vproxy.base.component.check;
 !!!!! >     exports io.vproxy.base.component.elgroup;
 !!!!! >     exports io.vproxy.base.component.elgroup.dummy;
 !!!!! >     exports io.vproxy.base.component.svrgroup;
-!!!!! 7a14,30
+!!!!! 6a14,30
 !!!!! >     exports io.vproxy.base.connection.util;
 !!!!! >     exports io.vproxy.base.dhcp;
 !!!!! >     exports io.vproxy.base.dns;
@@ -28,7 +29,7 @@
 !!!!! >     exports io.vproxy.base.processor.httpbin.entity;
 !!!!! >     exports io.vproxy.base.processor.httpbin.frame;
 !!!!! >     exports io.vproxy.base.processor.httpbin.hpack;
-!!!!! 8a32,46
+!!!!! 7a32,46
 !!!!! >     exports io.vproxy.base.protocol;
 !!!!! >     exports io.vproxy.base.redis;
 !!!!! >     exports io.vproxy.base.redis.application;
@@ -44,26 +45,28 @@
 !!!!! >     exports io.vproxy.base.selector.wrap.streamed;
 !!!!! >     exports io.vproxy.base.selector.wrap.udp;
 !!!!! >     exports io.vproxy.base.socks;
-!!!!! 13a52
+!!!!! 12a52
 !!!!! >     exports io.vproxy.base.util.codec;
-!!!!! 14a54
+!!!!! 13a54
 !!!!! >     exports io.vproxy.base.util.crypto;
-!!!!! 17a58
+!!!!! 16a58
 !!!!! >     exports io.vproxy.base.util.file;
-!!!!! 28a70,71
+!!!!! 18a61
+!!!!! >     exports io.vproxy.base.util.kt;
+!!!!! 26a70,71
 !!!!! >     exports io.vproxy.base.util.ringbuffer.ssl;
 !!!!! >     exports io.vproxy.base.util.thread;
-!!!!! 35a79,83
+!!!!! 33a79,83
 !!!!! >     exports io.vproxy.vfd.abs;
 !!!!! >     exports io.vproxy.vfd.jdk;
 !!!!! >     exports io.vproxy.vfd.posix;
 !!!!! >     exports io.vproxy.vfd.windows;
 !!!!! >     exports io.vproxy.vmirror;
-!!!!! 36a85,87
+!!!!! 34a85,87
 !!!!! >     exports io.vproxy.vpacket.conntrack;
 !!!!! >     exports io.vproxy.vpacket.conntrack.tcp;
 !!!!! >     exports io.vproxy.vpacket.conntrack.udp;
-!!!!! 41a93,96
+!!!!! 39a93,96
 !!!!! >     exports io.vproxy.xdp;
 !!!!! > 
 !!!!! >     uses io.vproxy.vfd.FDs;
@@ -385,19 +388,19 @@
 !!!!! > import io.vproxy.dep.vjson.util.ObjectBuilder;
 !!!!! diff return code 1 !!!!!
 
-##### files are the same: /java/io/vproxy/base/util/coll/Tuple4.kt #####
 ##### files are the same: /java/io/vproxy/base/util/coll/AppendableMap.java #####
 ##### files are the same: /java/io/vproxy/base/util/coll/AppendingList.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/Tuple.java #####
 ##### files are the same: /java/io/vproxy/base/util/coll/IntRanges.java #####
 ##### files are the same: /java/io/vproxy/base/util/coll/ReusableListIterator.java #####
 ##### files are the same: /java/io/vproxy/base/util/coll/ConcurrentHashSet.java #####
 ##### files are the same: /java/io/vproxy/base/util/coll/CopyOnWriteHolder.java #####
+##### files are the same: /java/io/vproxy/base/util/coll/Tuple4.java #####
 ##### files are the same: /java/io/vproxy/base/util/coll/WeakHashSet.java #####
 ##### files are the same: /java/io/vproxy/base/util/coll/IntMap.java #####
-##### files are the same: /java/io/vproxy/base/util/coll/Tuple.kt #####
 ##### files are the same: /java/io/vproxy/base/util/coll/RingQueue.java #####
 ##### files are the same: /java/io/vproxy/base/util/coll/LRUMap.java #####
-##### files are the same: /java/io/vproxy/base/util/coll/Tuple3.kt #####
+##### files are the same: /java/io/vproxy/base/util/coll/Tuple3.java #####
 ##### files are the same: /java/io/vproxy/base/util/coll/ReItrLinkedList.java #####
 ##### files are the same: /java/io/vproxy/base/util/coll/ReusableIterator.java #####
 ##### files are the same: /java/io/vproxy/base/util/LogType.java #####
@@ -409,7 +412,6 @@
 ##### files are the same: /java/io/vproxy/base/util/unsafe/SunUnsafe.java #####
 ##### files are the same: /java/io/vproxy/base/util/MainUtils.java #####
 ##### files are the same: /java/io/vproxy/base/util/RingBuffer.java #####
-##### files are the same: /java/io/vproxy/base/util/kt/KT.java #####
 ##### files are the same: /java/io/vproxy/base/util/nio/ByteArrayChannel.java #####
 ##### files are the same: /java/io/vproxy/base/util/log/LogRecord.java #####
 ##### files are the same: /java/io/vproxy/base/util/log/LogHandler.java #####
@@ -916,6 +918,7 @@
 ##### commons missing: /java/io/vproxy/base/util/codec/AbstractParser.java #####
 ##### commons missing: /java/io/vproxy/base/util/codec/AbstractDecoder.java #####
 ##### commons missing: /java/io/vproxy/base/util/Timer.java #####
+##### commons missing: /java/io/vproxy/base/util/kt/KT.java #####
 ##### commons missing: /java/io/vproxy/base/util/callback/RunOnLoopCallback.java #####
 ##### commons missing: /java/io/vproxy/base/util/AnnotationKeys.java #####
 ##### commons missing: /java/io/vproxy/base/util/thread/VProxyThreadJsonParserCacheHolder.java #####
