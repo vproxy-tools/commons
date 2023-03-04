@@ -2,7 +2,7 @@
 
 This module is copied and derived `vproxy-base`.
 
-This project depends on `vjson`, you may want to check [the vjson repo](https://github.com/wkgcass/vjson) for how to modification dependencies related to `kotlin` (If you are not using kotlin, you can ignore this).
+This project depends on `vjson`, you may want to check [the vjson repo](https://github.com/wkgcass/vjson) for how to modify dependencies related to `kotlin` (If you are not using kotlin, you can ignore this).
 
 ## usage
 
