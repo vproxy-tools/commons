@@ -9,7 +9,7 @@ This project depends on `vjson`, you may want to check [the vjson repo](https://
 **gradle**
 
 ```groovy
-implementation 'io.vproxy:commons:1.0.2'
+implementation 'io.vproxy:commons:1.1.0'
 ```
 
 **maven**
@@ -18,6 +18,6 @@ implementation 'io.vproxy:commons:1.0.2'
 <dependency>
   <groupId>io.vproxy</groupId>
   <artifactId>commons</artifactId>
-  <version>1.0.2</version>
+  <version>1.1.0</version>
 </dependency>
 ```
