@@ -150,6 +150,10 @@
 !!!!! < public class IPPort {
 !!!!! ---
 !!!!! > public class IPPort extends SockAddr {
+!!!!! 42a43,45
+!!!!! >         if (l4addr instanceof UnixDomainSocketAddress) {
+!!!!! >             return ((UnixDomainSocketAddress) l4addr).path;
+!!!!! >         }
 !!!!! diff return code 1 !!!!!
 
 ##### files are the same: /java/io/vproxy/vfd/IPv6.java #####
@@ -236,37 +240,37 @@
 !!!!! 7a13,14
 !!!!! > import java.io.IOException;
 !!!!! > import java.nio.ByteBuffer;
-!!!!! 16a24
+!!!!! 17a25
 !!!!! >     private static DatagramFD logChannel;
-!!!!! 95c103
+!!!!! 102c110
 !!!!! <             System.currentTimeMillis(),
 !!!!! ---
 !!!!! >             FDProvider.get().currentTimeMillis(),
-!!!!! 112c120
+!!!!! 119c127
 !!!!! <             String debugInfo = null;
 !!!!! ---
 !!!!! >             String debugInfo = VProxyThread.current().debugInfo;
-!!!!! 128c136
+!!!!! 135c143
 !!!!! <             System.currentTimeMillis(),
 !!!!! ---
 !!!!! >             FDProvider.get().currentTimeMillis(),
-!!!!! 158c166
+!!!!! 165c173
 !!!!! <             System.currentTimeMillis(),
 !!!!! ---
 !!!!! >             FDProvider.get().currentTimeMillis(),
-!!!!! 168c176
+!!!!! 175c183
 !!!!! <             System.currentTimeMillis(),
 !!!!! ---
 !!!!! >             FDProvider.get().currentTimeMillis(),
-!!!!! 179c187
+!!!!! 186c194
 !!!!! <             System.currentTimeMillis(),
 !!!!! ---
 !!!!! >             FDProvider.get().currentTimeMillis(),
-!!!!! 189c197
+!!!!! 196c204
 !!!!! <             System.currentTimeMillis(),
 !!!!! ---
 !!!!! >             FDProvider.get().currentTimeMillis(),
-!!!!! 206a215,263
+!!!!! 213a222,270
 !!!!! >     public static void probe(String msg) {
 !!!!! >         String threadName = Thread.currentThread().getName();
 !!!!! >         var record = new LogRecord(threadName, null,
@@ -810,6 +814,7 @@
 ##### commons missing: /java/io/vproxy/vfd/windows/WindowsFDs.java #####
 ##### commons missing: /java/io/vproxy/vfd/windows/GeneralWindows.java #####
 ##### commons missing: /java/io/vproxy/vfd/SelectedEntry.java #####
+##### commons missing: /java/io/vproxy/vfd/UnixDomainSocketAddress.java #####
 ##### commons missing: /java/io/vproxy/vfd/FDSelector.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/udp/UdpListenEntry.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/udp/UdpEntry.java #####
