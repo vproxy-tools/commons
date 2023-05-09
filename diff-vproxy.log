@@ -1,17 +1,16 @@
 !!!!! diff /java/module-info.java !!!!!
-!!!!! 3c3,6
+!!!!! 3d2
 !!!!! <     requires vjson;
-!!!!! ---
-!!!!! >     requires kotlin.stdlib;
+!!!!! 4a4,6
 !!!!! >     requires kotlinx.coroutines.core.jvm;
 !!!!! > 
 !!!!! >     requires transitive io.vproxy.dep;
-!!!!! 5a9,12
+!!!!! 6a9,12
 !!!!! >     exports io.vproxy.base.component.check;
 !!!!! >     exports io.vproxy.base.component.elgroup;
 !!!!! >     exports io.vproxy.base.component.elgroup.dummy;
 !!!!! >     exports io.vproxy.base.component.svrgroup;
-!!!!! 6a14,30
+!!!!! 7a14,30
 !!!!! >     exports io.vproxy.base.connection.util;
 !!!!! >     exports io.vproxy.base.dhcp;
 !!!!! >     exports io.vproxy.base.dns;
@@ -29,7 +28,7 @@
 !!!!! >     exports io.vproxy.base.processor.httpbin.entity;
 !!!!! >     exports io.vproxy.base.processor.httpbin.frame;
 !!!!! >     exports io.vproxy.base.processor.httpbin.hpack;
-!!!!! 7a32,46
+!!!!! 8a32,46
 !!!!! >     exports io.vproxy.base.protocol;
 !!!!! >     exports io.vproxy.base.redis;
 !!!!! >     exports io.vproxy.base.redis.application;
@@ -45,28 +44,28 @@
 !!!!! >     exports io.vproxy.base.selector.wrap.streamed;
 !!!!! >     exports io.vproxy.base.selector.wrap.udp;
 !!!!! >     exports io.vproxy.base.socks;
-!!!!! 12a52
+!!!!! 13a52
 !!!!! >     exports io.vproxy.base.util.codec;
-!!!!! 13a54
+!!!!! 14a54
 !!!!! >     exports io.vproxy.base.util.crypto;
-!!!!! 16a58
+!!!!! 17a58
 !!!!! >     exports io.vproxy.base.util.file;
-!!!!! 18a61
+!!!!! 19a61
 !!!!! >     exports io.vproxy.base.util.kt;
-!!!!! 26a70,71
+!!!!! 27a70,71
 !!!!! >     exports io.vproxy.base.util.ringbuffer.ssl;
 !!!!! >     exports io.vproxy.base.util.thread;
-!!!!! 33a79,83
+!!!!! 34a79,83
 !!!!! >     exports io.vproxy.vfd.abs;
 !!!!! >     exports io.vproxy.vfd.jdk;
 !!!!! >     exports io.vproxy.vfd.posix;
 !!!!! >     exports io.vproxy.vfd.windows;
 !!!!! >     exports io.vproxy.vmirror;
-!!!!! 34a85,87
+!!!!! 35a85,87
 !!!!! >     exports io.vproxy.vpacket.conntrack;
 !!!!! >     exports io.vproxy.vpacket.conntrack.tcp;
 !!!!! >     exports io.vproxy.vpacket.conntrack.udp;
-!!!!! 39a93,96
+!!!!! 40a93,96
 !!!!! >     exports io.vproxy.xdp;
 !!!!! > 
 !!!!! >     uses io.vproxy.vfd.FDs;
