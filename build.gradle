@@ -50,7 +50,7 @@ publishing {
 
             pom {
                 name = 'commons'
-                description = 'javafx library'
+                description = 'a commons library extracted from vproxy base module'
                 url = 'http://github.com/vproxy-tools/commons'
                 licenses {
                     license {
