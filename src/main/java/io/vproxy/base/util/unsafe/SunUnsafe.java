@@ -24,15 +24,11 @@ public class SunUnsafe {
         U.invokeCleaner(byteBuffer);
     }
 
-    public static byte getByte(long address) {
-        return U.getByte(address);
+    public static long allocateMemory(long size) {
+        return U.allocateMemory(size);
     }
 
-    public static void putByte(long address, byte b) {
-        U.putByte(address, b);
-    }
-
-    public static void copyMemory(long dst, long src, int len) {
-        U.copyMemory(src, dst, len);
+    public static void freeMemory(long address) {
+        U.freeMemory(address);
     }
 }

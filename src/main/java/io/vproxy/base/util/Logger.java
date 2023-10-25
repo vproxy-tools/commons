@@ -99,11 +99,15 @@ public class Logger {
             elem,
             LogLevel.DEBUG,
             null,
-            System.currentTimeMillis(),
+            currentTimeMillis(),
             getDebugInfo(elem) + msg,
             null);
         logDispatcher.publish(record);
         return true;
+    }
+
+    private static long currentTimeMillis() {
+        return System.currentTimeMillis();
     }
 
     private static String getDebugInfo(StackTraceElement elem) {
@@ -132,7 +136,7 @@ public class Logger {
             elem,
             level,
             type,
-            System.currentTimeMillis(),
+            currentTimeMillis(),
             err,
             t
         );
@@ -162,7 +166,7 @@ public class Logger {
         var record = new LogRecord(null, null,
             LogLevel.WARN,
             logType,
-            System.currentTimeMillis(),
+            currentTimeMillis(),
             msg,
             null);
         logDispatcher.publish(record);
@@ -172,7 +176,7 @@ public class Logger {
         var record = new LogRecord(null, null,
             LogLevel.WARN,
             logType,
-            System.currentTimeMillis(),
+            currentTimeMillis(),
             err,
             t);
         logDispatcher.publish(record);
@@ -183,7 +187,7 @@ public class Logger {
         var record = new LogRecord(null, null,
             LogLevel.INFO,
             logType,
-            System.currentTimeMillis(),
+            currentTimeMillis(),
             msg,
             null);
         logDispatcher.publish(record);
@@ -193,7 +197,7 @@ public class Logger {
         var record = new LogRecord(null, null,
             LogLevel.TRACE,
             logType,
-            System.currentTimeMillis(),
+            currentTimeMillis(),
             msg,
             null);
         logDispatcher.publish(record);

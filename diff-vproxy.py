@@ -38,6 +38,8 @@ def diff_file(base, n):
 def handle(base, name):
     ls = os.listdir(base + name)
     for n in ls:
+        if n == 'generated':
+            continue
         if os.path.isdir(base + name + '/' + n):
             handle(base, name + '/' + n)
         elif n.endswith('.java') or n.endswith('.kt'):
@@ -48,6 +50,8 @@ handle('./' + BASE_DIR, '')
 def handle_vproxy(base, name):
     ls = os.listdir(VPROXY_DIR + 'base/' + BASE_DIR + name)
     for n in ls:
+        if n == 'generated':
+            continue
         if os.path.isdir(VPROXY_DIR + 'base/' + BASE_DIR + name + '/' + n):
             handle_vproxy(base, name + '/' + n)
             continue
