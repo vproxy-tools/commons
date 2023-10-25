@@ -13,16 +13,10 @@ repositories {
 }
 
 dependencies {
-    api group: 'io.vproxy', name: 'vjson', version: '1.5.2'
+    api group: 'io.vproxy', name: 'vjson', version: '1.5.4-jdk9'
 }
 
 compileJava {
-    doFirst {
-        options.compilerArgs << '--module-path' << classpath.asPath
-    }
-    options.compilerArgs << '--add-modules' << [
-            'vjson',
-    ].join(',')
     options.compilerArgs += '--add-exports=java.base/jdk.internal.misc=io.vproxy.base'
 }
 
