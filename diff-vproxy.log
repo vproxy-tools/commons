@@ -31,7 +31,7 @@
 !!!!! >     exports io.vproxy.base.processor.httpbin.entity;
 !!!!! >     exports io.vproxy.base.processor.httpbin.frame;
 !!!!! >     exports io.vproxy.base.processor.httpbin.hpack;
-!!!!! 8a34,48
+!!!!! 8a34,49
 !!!!! >     exports io.vproxy.base.protocol;
 !!!!! >     exports io.vproxy.base.redis;
 !!!!! >     exports io.vproxy.base.redis.application;
@@ -44,34 +44,36 @@
 !!!!! >     exports io.vproxy.base.selector.wrap.h2streamed;
 !!!!! >     exports io.vproxy.base.selector.wrap.kcp;
 !!!!! >     exports io.vproxy.base.selector.wrap.kcp.mock;
+!!!!! >     exports io.vproxy.base.selector.wrap.quic;
 !!!!! >     exports io.vproxy.base.selector.wrap.streamed;
 !!!!! >     exports io.vproxy.base.selector.wrap.udp;
 !!!!! >     exports io.vproxy.base.socks;
-!!!!! 13a54
+!!!!! 13a55
 !!!!! >     exports io.vproxy.base.util.codec;
-!!!!! 14a56
+!!!!! 14a57
 !!!!! >     exports io.vproxy.base.util.crypto;
-!!!!! 17a60
+!!!!! 17a61
 !!!!! >     exports io.vproxy.base.util.file;
-!!!!! 19a63
+!!!!! 19a64
 !!!!! >     exports io.vproxy.base.util.kt;
-!!!!! 27a72,73
+!!!!! 27a73,74
 !!!!! >     exports io.vproxy.base.util.ringbuffer.ssl;
 !!!!! >     exports io.vproxy.base.util.thread;
-!!!!! 33a80,81
+!!!!! 33a81,83
+!!!!! >     exports io.vproxy.msquic.callback;
 !!!!! >     exports io.vproxy.msquic.wrap;
 !!!!! >     exports io.vproxy.msquic;
-!!!!! 34a83,87
+!!!!! 34a85,89
 !!!!! >     exports io.vproxy.vfd.abs;
 !!!!! >     exports io.vproxy.vfd.jdk;
 !!!!! >     exports io.vproxy.vfd.posix;
 !!!!! >     exports io.vproxy.vfd.windows;
 !!!!! >     exports io.vproxy.vmirror;
-!!!!! 35a89,91
+!!!!! 35a91,93
 !!!!! >     exports io.vproxy.vpacket.conntrack;
 !!!!! >     exports io.vproxy.vpacket.conntrack.tcp;
 !!!!! >     exports io.vproxy.vpacket.conntrack.udp;
-!!!!! 40a97,100
+!!!!! 40a99,102
 !!!!! >     exports io.vproxy.xdp;
 !!!!! > 
 !!!!! >     uses io.vproxy.vfd.FDs;
@@ -94,12 +96,16 @@
 !!!!! > import io.vproxy.base.util.callback.Callback;
 !!!!! 4a8
 !!!!! > import java.io.IOException;
-!!!!! 31a36,39
-!!!!! >     public static IP blockResolve(String hostOrIp) {
-!!!!! >         return from(blockParseAddress(hostOrIp));
+!!!!! 41a46,53
 !!!!! >     }
 !!!!! > 
-!!!!! 307a316,341
+!!!!! >     public static IP blockResolve(String hostOrIp) {
+!!!!! >         if (isIpLiteral(hostOrIp)) {
+!!!!! >             return from(blockParseAddress(hostOrIp));
+!!!!! >         } else {
+!!!!! >             return from(hostOrIp, blockParseAddress(hostOrIp));
+!!!!! >         }
+!!!!! 341a354,379
 !!!!! >     }
 !!!!! > 
 !!!!! >     public static IPPort blockParseL4Addr(String l4addr) throws Exception {
@@ -126,7 +132,7 @@
 !!!!! >         var cb = new BlockCallback<IP, IOException>();
 !!!!! >         Resolver.getDefault().resolve(ip, cb);
 !!!!! >         return new IPPort(cb.block(), port);
-!!!!! 437a472,491
+!!!!! 471a510,529
 !!!!! >     public static void parseAddress(String address, Callback<byte[], IllegalArgumentException> cb) {
 !!!!! >         Resolver.getDefault().resolve(address, new Callback<>() {
 !!!!! >             @Override
@@ -827,6 +833,7 @@
 ##### commons missing: /java/io/vproxy/vfd/UnixDomainSocketAddress.java #####
 ##### commons missing: /java/io/vproxy/vfd/FDSelector.java #####
 ##### commons missing: /java/io/vproxy/msquic/MsQuicInitializer.java #####
+##### commons missing: /java/io/vproxy/msquic/QuicBufferByteArray.java #####
 ##### commons missing: /java/io/vproxy/msquic/MsQuicModUpcallImpl.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/udp/UdpListenEntry.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/udp/UdpEntry.java #####
@@ -857,6 +864,7 @@
 ##### commons missing: /java/io/vproxy/base/selector/SelectorEventLoop.java #####
 ##### commons missing: /java/io/vproxy/base/selector/HandlerContext.java #####
 ##### commons missing: /java/io/vproxy/base/selector/PeriodicEvent.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/AbstractDelegateServerSocketFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/StreamedServerSocketFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/MethodForStreamedFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/StreamedFDHandler.java #####
@@ -878,15 +886,19 @@
 ##### commons missing: /java/io/vproxy/base/selector/wrap/h2streamed/H2StreamedFDHandler.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/h2streamed/H2StreamedServerFDs.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/h2streamed/H2StreamedClientFDs.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/AbstractDelegateSocketFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/ClosedSelectorExceptionWithInfo.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/AbstractDelegateFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/CancelledKeyExceptionWithInfo.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/AbstractBaseVirtualSocketFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/WrappedSelector.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/DelegatingTargetFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/arqudp/ArqUDPServerSocketFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/arqudp/ArqUDPHandler.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/arqudp/ArqUDPSocketFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/arqudp/ArqUDPBasedFDs.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/AbstractBaseVirtualServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/DelegatingSourceFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/Kcp.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/mock/ByteBuf.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/mock/InternalLogger.java #####
@@ -898,6 +910,11 @@
 ##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/KcpOutput.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/KCPSocketFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/kcp/KCPFDs.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/quic/QuicDelegateSocketFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/quic/QuicListenerServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/quic/QuicFDs.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/quic/QuicServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/quic/QuicSocketFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/TimerEvent.java #####
 ##### commons missing: /java/io/vproxy/base/selector/package-info.java #####
 ##### commons missing: /java/io/vproxy/base/connection/NetFlowRecorder.java #####
