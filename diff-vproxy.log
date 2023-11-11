@@ -351,6 +351,272 @@
 ##### files are the same: /java/io/vproxy/base/util/bytearray/UnmodifiableByteArray.java #####
 ##### files are the same: /java/io/vproxy/base/util/bytearray/PersistByteArray.java #####
 ##### files are the same: /java/io/vproxy/base/util/bytearray/SubByteArray.java #####
+!!!!! diff /java/io/vproxy/base/util/bytearray/MemorySegmentByteArray.java !!!!!
+!!!!! 5,7c5,6
+!!!!! < import java.lang.invoke.MethodHandle;
+!!!!! < import java.lang.invoke.MethodHandles;
+!!!!! < import java.lang.invoke.MethodType;
+!!!!! ---
+!!!!! > import java.lang.foreign.MemorySegment;
+!!!!! > import java.lang.foreign.ValueLayout;
+!!!!! 12,25c11
+!!!!! <     private static final Class<?> MemorySegment;
+!!!!! <     private static final Object JAVA_BYTE;
+!!!!! <     private static final MethodHandle getByte;
+!!!!! <     private static final MethodHandle setByte;
+!!!!! <     private static final MethodHandle byteSize;
+!!!!! <     private static final MethodHandle asByteBuffer;
+!!!!! <     private static final MethodHandle asSlice;
+!!!!! <     private static final MethodHandle copyFrom;
+!!!!! <     private static final MethodHandle getLong;
+!!!!! <     private static final MethodHandle getInt;
+!!!!! <     private static final MethodHandle getShort;
+!!!!! <     private static final MethodHandle setLong;
+!!!!! <     private static final MethodHandle setInt;
+!!!!! <     private static final MethodHandle setShort;
+!!!!! ---
+!!!!! >     protected final MemorySegment seg;
+!!!!! 27,97c13
+!!!!! <     static {
+!!!!! <         try {
+!!!!! <             var lookup = MethodHandles.lookup();
+!!!!! < 
+!!!!! <             var CLASSNAME = "java.lang.foreign.MemorySegment";
+!!!!! <             MemorySegment = Class.forName(CLASSNAME);
+!!!!! <             var ValueLayout = Class.forName("java.lang.foreign.ValueLayout");
+!!!!! < 
+!!!!! <             JAVA_BYTE = ValueLayout.getField("JAVA_BYTE").get(null);
+!!!!! <             {
+!!!!! <                 var ValueLayout$OfLong = Class.forName("java.lang.foreign.ValueLayout$OfLong");
+!!!!! < 
+!!!!! <                 var _LONG_BIG_ENDIAN = ValueLayout.getField("JAVA_LONG_UNALIGNED").get(null);
+!!!!! <                 _LONG_BIG_ENDIAN = ValueLayout$OfLong.getMethod("withOrder", ByteOrder.class).invoke(_LONG_BIG_ENDIAN, ByteOrder.BIG_ENDIAN);
+!!!!! <                 LONG_BIG_ENDIAN = _LONG_BIG_ENDIAN;
+!!!!! < 
+!!!!! <                 var _LONG_LITTLE_ENDIAN = ValueLayout.getField("JAVA_LONG_UNALIGNED").get(null);
+!!!!! <                 _LONG_LITTLE_ENDIAN = ValueLayout$OfLong.getMethod("withOrder", ByteOrder.class).invoke(_LONG_BIG_ENDIAN, ByteOrder.LITTLE_ENDIAN);
+!!!!! <                 LONG_LITTLE_ENDIAN = _LONG_LITTLE_ENDIAN;
+!!!!! < 
+!!!!! <                 getLong = lookup.findVirtual(MemorySegment, "get", MethodType.methodType(long.class, ValueLayout$OfLong, long.class));
+!!!!! <                 setLong = lookup.findVirtual(MemorySegment, "set", MethodType.methodType(void.class, ValueLayout$OfLong, long.class, long.class));
+!!!!! <             }
+!!!!! <             {
+!!!!! <                 var ValueLayout$OfInt = Class.forName("java.lang.foreign.ValueLayout$OfInt");
+!!!!! < 
+!!!!! <                 var _INT_BIG_ENDIAN = ValueLayout.getField("JAVA_INT_UNALIGNED").get(null);
+!!!!! <                 _INT_BIG_ENDIAN = ValueLayout$OfInt.getMethod("withOrder", ByteOrder.class).invoke(_INT_BIG_ENDIAN, ByteOrder.BIG_ENDIAN);
+!!!!! <                 INT_BIG_ENDIAN = _INT_BIG_ENDIAN;
+!!!!! < 
+!!!!! <                 var _INT_LITTLE_ENDIAN = ValueLayout.getField("JAVA_INT_UNALIGNED").get(null);
+!!!!! <                 _INT_LITTLE_ENDIAN = ValueLayout$OfInt.getMethod("withOrder", ByteOrder.class).invoke(_INT_LITTLE_ENDIAN, ByteOrder.LITTLE_ENDIAN);
+!!!!! <                 INT_LITTLE_ENDIAN = _INT_LITTLE_ENDIAN;
+!!!!! < 
+!!!!! <                 getInt = lookup.findVirtual(MemorySegment, "get", MethodType.methodType(int.class, ValueLayout$OfInt, long.class));
+!!!!! <                 setInt = lookup.findVirtual(MemorySegment, "set", MethodType.methodType(void.class, ValueLayout$OfInt, long.class, int.class));
+!!!!! <             }
+!!!!! <             {
+!!!!! <                 var ValueLayout$OfShort = Class.forName("java.lang.foreign.ValueLayout$OfShort");
+!!!!! < 
+!!!!! <                 var _SHORT_BIG_ENDIAN = ValueLayout.getField("JAVA_SHORT_UNALIGNED").get(null);
+!!!!! <                 _SHORT_BIG_ENDIAN = ValueLayout$OfShort.getMethod("withOrder", ByteOrder.class).invoke(_SHORT_BIG_ENDIAN, ByteOrder.BIG_ENDIAN);
+!!!!! <                 SHORT_BIG_ENDIAN = _SHORT_BIG_ENDIAN;
+!!!!! < 
+!!!!! <                 var _SHORT_LITTLE_ENDIAN = ValueLayout.getField("JAVA_SHORT_UNALIGNED").get(null);
+!!!!! <                 _SHORT_LITTLE_ENDIAN = ValueLayout$OfShort.getMethod("withOrder", ByteOrder.class).invoke(_SHORT_LITTLE_ENDIAN, ByteOrder.LITTLE_ENDIAN);
+!!!!! <                 SHORT_LITTLE_ENDIAN = _SHORT_LITTLE_ENDIAN;
+!!!!! < 
+!!!!! <                 getShort = lookup.findVirtual(MemorySegment, "get", MethodType.methodType(short.class, ValueLayout$OfShort, long.class));
+!!!!! <                 setShort = lookup.findVirtual(MemorySegment, "set", MethodType.methodType(void.class, ValueLayout$OfShort, long.class, short.class));
+!!!!! <             }
+!!!!! < 
+!!!!! <             var ValueLayout$OfByte = Class.forName("java.lang.foreign.ValueLayout$OfByte");
+!!!!! < 
+!!!!! <             getByte = lookup.findVirtual(MemorySegment, "get", MethodType.methodType(byte.class, ValueLayout$OfByte, long.class));
+!!!!! <             setByte = lookup.findVirtual(MemorySegment, "set", MethodType.methodType(void.class, ValueLayout$OfByte, long.class, byte.class));
+!!!!! <             byteSize = lookup.findVirtual(MemorySegment, "byteSize", MethodType.methodType(long.class));
+!!!!! <             asByteBuffer = lookup.findVirtual(MemorySegment, "asByteBuffer", MethodType.methodType(ByteBuffer.class));
+!!!!! <             asSlice = lookup.findVirtual(MemorySegment, "asSlice", MethodType.methodType(MemorySegment, long.class, long.class));
+!!!!! <             copyFrom = lookup.findVirtual(MemorySegment, "copyFrom", MethodType.methodType(MemorySegment, MemorySegment));
+!!!!! <         } catch (Throwable t) {
+!!!!! <             throw new RuntimeException(t);
+!!!!! <         }
+!!!!! <     }
+!!!!! < 
+!!!!! <     protected final Object seg;
+!!!!! < 
+!!!!! <     public MemorySegmentByteArray(Object seg) {
+!!!!! <         if (!MemorySegment.isInstance(seg)) {
+!!!!! <             throw new IllegalArgumentException(seg.getClass().getName() + " is not MemorySegment");
+!!!!! <         }
+!!!!! ---
+!!!!! >     public MemorySegmentByteArray(MemorySegment seg) {
+!!!!! 103,107c19
+!!!!! <         try {
+!!!!! <             return (byte) getByte.invoke(seg, JAVA_BYTE, idx);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         return seg.get(ValueLayout.JAVA_BYTE, idx);
+!!!!! 112,116c24
+!!!!! <         try {
+!!!!! <             setByte.invoke(seg, JAVA_BYTE, idx, value);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         seg.set(ValueLayout.JAVA_BYTE, idx, value);
+!!!!! 122,126c30
+!!!!! <         try {
+!!!!! <             return (int) ((long) byteSize.invoke(seg));
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         return (int) seg.byteSize();
+!!!!! 131,135c35
+!!!!! <         try {
+!!!!! <             dst.put(((ByteBuffer) asByteBuffer.invoke(seg)).limit(off + len).position(off));
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         dst.put(seg.asByteBuffer().limit(off + len).position(off));
+!!!!! 140,144c40
+!!!!! <         try {
+!!!!! <             ((ByteBuffer) asByteBuffer.invoke(seg)).limit(off + len).position(off).put(src);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         seg.asByteBuffer().limit(off + len).position(off).put(src);
+!!!!! 149c45
+!!!!! <         if (!(dst instanceof MemorySegmentByteArray)) {
+!!!!! ---
+!!!!! >         if (!(dst instanceof MemorySegmentByteArray segBuf)) {
+!!!!! 153,170c49
+!!!!! <         var segBuf = (MemorySegmentByteArray) dst;
+!!!!! <         Object segBufSegSlice;
+!!!!! <         try {
+!!!!! <             segBufSegSlice = asSlice.invoke(segBuf.seg, dstOff, srcLen);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! <         Object thisSegSlice;
+!!!!! <         try {
+!!!!! <             thisSegSlice = asSlice.invoke(this.seg, srcOff, srcLen);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! <         try {
+!!!!! <             copyFrom.invoke(segBufSegSlice, thisSegSlice);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         segBuf.seg.asSlice(dstOff, srcLen).copyFrom(this.seg.asSlice(srcOff, srcLen));
+!!!!! 175,181c54
+!!!!! <         ByteBuffer buf;
+!!!!! <         try {
+!!!!! <             buf = (ByteBuffer) asByteBuffer.invoke(seg);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! <         buf.limit(srcOff + srcLen).position(srcOff).get(dst, dstOff, srcLen);
+!!!!! ---
+!!!!! >         seg.asByteBuffer().limit(srcOff + srcLen).position(srcOff).get(dst, dstOff, srcLen);
+!!!!! 184,185c57,58
+!!!!! <     private static final Object LONG_BIG_ENDIAN;
+!!!!! <     private static final Object LONG_LITTLE_ENDIAN;
+!!!!! ---
+!!!!! >     private static final ValueLayout.OfLong LONG_BIG_ENDIAN = ValueLayout.JAVA_LONG_UNALIGNED.withOrder(ByteOrder.BIG_ENDIAN);
+!!!!! >     private static final ValueLayout.OfLong LONG_LITTLE_ENDIAN = ValueLayout.JAVA_LONG_UNALIGNED.withOrder(ByteOrder.LITTLE_ENDIAN);
+!!!!! 189,193c62
+!!!!! <         try {
+!!!!! <             return (long) getLong.invoke(seg, LONG_BIG_ENDIAN, offset);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         return seg.get(LONG_BIG_ENDIAN, offset);
+!!!!! 198,202c67
+!!!!! <         try {
+!!!!! <             return (long) getLong.invoke(seg, LONG_LITTLE_ENDIAN, offset);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         return seg.get(LONG_LITTLE_ENDIAN, offset);
+!!!!! 205,206c70,71
+!!!!! <     private static final Object INT_BIG_ENDIAN;
+!!!!! <     private static final Object INT_LITTLE_ENDIAN;
+!!!!! ---
+!!!!! >     private static final ValueLayout.OfInt INT_BIG_ENDIAN = ValueLayout.JAVA_INT_UNALIGNED.withOrder(ByteOrder.BIG_ENDIAN);
+!!!!! >     private static final ValueLayout.OfInt INT_LITTLE_ENDIAN = ValueLayout.JAVA_INT_UNALIGNED.withOrder(ByteOrder.LITTLE_ENDIAN);
+!!!!! 210,214c75
+!!!!! <         try {
+!!!!! <             return (int) getInt.invoke(seg, INT_BIG_ENDIAN, offset);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         return seg.get(INT_BIG_ENDIAN, offset);
+!!!!! 219,223c80
+!!!!! <         try {
+!!!!! <             return (int) getInt.invoke(seg, INT_LITTLE_ENDIAN, offset);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         return seg.get(INT_LITTLE_ENDIAN, offset);
+!!!!! 236,237c93,94
+!!!!! <     private static final Object SHORT_BIG_ENDIAN;
+!!!!! <     private static final Object SHORT_LITTLE_ENDIAN;
+!!!!! ---
+!!!!! >     private static final ValueLayout.OfShort SHORT_BIG_ENDIAN = ValueLayout.JAVA_SHORT_UNALIGNED.withOrder(ByteOrder.BIG_ENDIAN);
+!!!!! >     private static final ValueLayout.OfShort SHORT_LITTLE_ENDIAN = ValueLayout.JAVA_SHORT_UNALIGNED.withOrder(ByteOrder.LITTLE_ENDIAN);
+!!!!! 241,245c98
+!!!!! <         try {
+!!!!! <             return ((short) getShort.invoke(seg, SHORT_BIG_ENDIAN, offset)) & 0xffff;
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         return seg.get(SHORT_BIG_ENDIAN, offset) & 0xffff;
+!!!!! 250,254c103
+!!!!! <         try {
+!!!!! <             return ((short) getShort.invoke(seg, SHORT_LITTLE_ENDIAN, offset)) & 0xffff;
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         return seg.get(SHORT_LITTLE_ENDIAN, offset) & 0xffff;
+!!!!! 259,263c108
+!!!!! <         try {
+!!!!! <             setShort.invoke(seg, SHORT_BIG_ENDIAN, offset, (short) val);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         seg.set(SHORT_BIG_ENDIAN, offset, (short) val);
+!!!!! 269,273c114
+!!!!! <         try {
+!!!!! <             setInt.invoke(seg, INT_BIG_ENDIAN, offset, val);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         seg.set(INT_BIG_ENDIAN, offset, val);
+!!!!! 279,283c120
+!!!!! <         try {
+!!!!! <             setLong.invoke(seg, LONG_BIG_ENDIAN, offset, val);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         seg.set(LONG_BIG_ENDIAN, offset, val);
+!!!!! diff return code 1 !!!!!
+
 ##### files are the same: /java/io/vproxy/base/util/bytearray/AbstractByteArray.java #####
 ##### files are the same: /java/io/vproxy/base/util/bytearray/SimpleByteArray.java #####
 ##### files are the same: /java/io/vproxy/base/util/bytearray/CompositeByteArray.java #####
@@ -952,7 +1218,6 @@
 ##### commons missing: /java/io/vproxy/base/util/file/FileWatcher.java #####
 ##### commons missing: /java/io/vproxy/base/util/codec/AbstractParser.java #####
 ##### commons missing: /java/io/vproxy/base/util/codec/AbstractDecoder.java #####
-##### commons missing: /java/io/vproxy/base/util/bytearray/MemorySegmentByteArray.java #####
 ##### commons missing: /java/io/vproxy/base/util/Timer.java #####
 ##### commons missing: /java/io/vproxy/base/util/kt/KT.java #####
 ##### commons missing: /java/io/vproxy/base/util/callback/RunOnLoopCallback.java #####
