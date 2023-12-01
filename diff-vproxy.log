@@ -13,11 +13,10 @@
 !!!!! >     exports io.vproxy.base.component.elgroup;
 !!!!! >     exports io.vproxy.base.component.elgroup.dummy;
 !!!!! >     exports io.vproxy.base.component.svrgroup;
-!!!!! 7a16,32
+!!!!! 7a16,17
 !!!!! >     exports io.vproxy.base.connection.util;
 !!!!! >     exports io.vproxy.base.dhcp;
-!!!!! >     exports io.vproxy.base.dns;
-!!!!! >     exports io.vproxy.base.dns.dnsserverlistgetter;
+!!!!! 9a20,32
 !!!!! >     exports io.vproxy.base.http;
 !!!!! >     exports io.vproxy.base.http.connect;
 !!!!! >     exports io.vproxy.base.processor;
@@ -31,7 +30,7 @@
 !!!!! >     exports io.vproxy.base.processor.httpbin.entity;
 !!!!! >     exports io.vproxy.base.processor.httpbin.frame;
 !!!!! >     exports io.vproxy.base.processor.httpbin.hpack;
-!!!!! 8a34,49
+!!!!! 10a34,49
 !!!!! >     exports io.vproxy.base.protocol;
 !!!!! >     exports io.vproxy.base.redis;
 !!!!! >     exports io.vproxy.base.redis.application;
@@ -48,32 +47,32 @@
 !!!!! >     exports io.vproxy.base.selector.wrap.streamed;
 !!!!! >     exports io.vproxy.base.selector.wrap.udp;
 !!!!! >     exports io.vproxy.base.socks;
-!!!!! 13a55
+!!!!! 15a55
 !!!!! >     exports io.vproxy.base.util.codec;
-!!!!! 14a57
+!!!!! 16a57
 !!!!! >     exports io.vproxy.base.util.crypto;
-!!!!! 17a61
+!!!!! 19a61
 !!!!! >     exports io.vproxy.base.util.file;
-!!!!! 19a64
+!!!!! 21a64
 !!!!! >     exports io.vproxy.base.util.kt;
-!!!!! 27a73,74
+!!!!! 29a73,74
 !!!!! >     exports io.vproxy.base.util.ringbuffer.ssl;
 !!!!! >     exports io.vproxy.base.util.thread;
-!!!!! 33a81,83
+!!!!! 35a81,83
 !!!!! >     exports io.vproxy.msquic.callback;
 !!!!! >     exports io.vproxy.msquic.wrap;
 !!!!! >     exports io.vproxy.msquic;
-!!!!! 34a85,89
+!!!!! 36a85,89
 !!!!! >     exports io.vproxy.vfd.abs;
 !!!!! >     exports io.vproxy.vfd.jdk;
 !!!!! >     exports io.vproxy.vfd.posix;
 !!!!! >     exports io.vproxy.vfd.windows;
 !!!!! >     exports io.vproxy.vmirror;
-!!!!! 35a91,93
+!!!!! 37a91,93
 !!!!! >     exports io.vproxy.vpacket.conntrack;
 !!!!! >     exports io.vproxy.vpacket.conntrack.tcp;
 !!!!! >     exports io.vproxy.vpacket.conntrack.udp;
-!!!!! 40a99,102
+!!!!! 42a99,102
 !!!!! >     exports io.vproxy.xdp;
 !!!!! > 
 !!!!! >     uses io.vproxy.vfd.FDs;
@@ -88,73 +87,7 @@
 ##### files are the same: /java/io/vproxy/commons/graph/GraphBuilder.java #####
 ##### files are the same: /java/io/vproxy/commons/graph/GraphNode.java #####
 ##### files are the same: /java/io/vproxy/commons/graph/Dijkstra.java #####
-!!!!! diff /java/io/vproxy/vfd/IP.java !!!!!
-!!!!! 2a3
-!!!!! > import io.vproxy.base.dns.Resolver;
-!!!!! 3a5,6
-!!!!! > import io.vproxy.base.util.callback.BlockCallback;
-!!!!! > import io.vproxy.base.util.callback.Callback;
-!!!!! 4a8
-!!!!! > import java.io.IOException;
-!!!!! 41a46,53
-!!!!! >     }
-!!!!! > 
-!!!!! >     public static IP blockResolve(String hostOrIp) {
-!!!!! >         if (isIpLiteral(hostOrIp)) {
-!!!!! >             return from(blockParseAddress(hostOrIp));
-!!!!! >         } else {
-!!!!! >             return from(hostOrIp, blockParseAddress(hostOrIp));
-!!!!! >         }
-!!!!! 341a354,379
-!!!!! >     }
-!!!!! > 
-!!!!! >     public static IPPort blockParseL4Addr(String l4addr) throws Exception {
-!!!!! >         if (!l4addr.contains(":")) {
-!!!!! >             throw new Exception("missing port");
-!!!!! >         }
-!!!!! >         String ip = l4addr.substring(0, l4addr.lastIndexOf(":"));
-!!!!! >         String portStr = l4addr.substring(l4addr.lastIndexOf(":") + 1);
-!!!!! >         int port;
-!!!!! >         try {
-!!!!! >             port = Integer.parseInt(portStr);
-!!!!! >         } catch (NumberFormatException e) {
-!!!!! >             throw new Exception("invalid port number");
-!!!!! >         }
-!!!!! >         if (port < 0 || port > 65535) {
-!!!!! >             throw new Exception("invalid port number: out of range");
-!!!!! >         }
-!!!!! > 
-!!!!! >         byte[] ipBytes = parseIpString(ip);
-!!!!! >         if (ipBytes != null) {
-!!!!! >             return new IPPort(IP.from(ipBytes), port);
-!!!!! >         }
-!!!!! >         // try hostname
-!!!!! >         var cb = new BlockCallback<IP, IOException>();
-!!!!! >         Resolver.getDefault().resolve(ip, cb);
-!!!!! >         return new IPPort(cb.block(), port);
-!!!!! 471a510,529
-!!!!! >     public static void parseAddress(String address, Callback<byte[], IllegalArgumentException> cb) {
-!!!!! >         Resolver.getDefault().resolve(address, new Callback<>() {
-!!!!! >             @Override
-!!!!! >             protected void onSucceeded(IP value) {
-!!!!! >                 cb.succeeded(value.getAddress());
-!!!!! >             }
-!!!!! > 
-!!!!! >             @Override
-!!!!! >             protected void onFailed(UnknownHostException err) {
-!!!!! >                 cb.failed(new IllegalArgumentException("unknown ip " + address));
-!!!!! >             }
-!!!!! >         });
-!!!!! >     }
-!!!!! > 
-!!!!! >     public static byte[] blockParseAddress(String address) throws IllegalArgumentException {
-!!!!! >         BlockCallback<byte[], IllegalArgumentException> cb = new BlockCallback<>();
-!!!!! >         parseAddress(address, cb);
-!!!!! >         return cb.block();
-!!!!! >     }
-!!!!! >
-!!!!! diff return code 1 !!!!!
-
+##### files are the same: /java/io/vproxy/vfd/IP.java #####
 ##### files are the same: /java/io/vproxy/vfd/WritableByteStream.java #####
 !!!!! diff /java/io/vproxy/vfd/IPPort.java !!!!!
 !!!!! 7c7
@@ -248,6 +181,40 @@
 ##### files are the same: /java/io/vproxy/base/util/objectpool/ConcurrentObjectPool.java #####
 ##### files are the same: /java/io/vproxy/base/util/objectpool/PrototypeObjectList.java #####
 ##### files are the same: /java/io/vproxy/base/util/objectpool/GarbageFree.java #####
+!!!!! diff /java/io/vproxy/base/util/file/MappedByteBufferLogger.java !!!!!
+!!!!! 35c35
+!!!!! <             throw new IOException(location + " is not a directory");
+!!!!! ---
+!!!!! >             throw new IOException(STR."\{location} is not a directory");
+!!!!! 119c119
+!!!!! <             Logger.error(LogType.FILE_ERROR, "failed creating new file for " + prefix + "..." + suffix);
+!!!!! ---
+!!!!! >             Logger.error(LogType.FILE_ERROR, STR."failed creating new file for \{prefix}...\{suffix}");
+!!!!! 201,217c201,204
+!!!!! <     public static final class WriteOrDropResult {
+!!!!! <         private final WriteOrDropResultType type;
+!!!!! <         private final Promise<Void> writablePromise;
+!!!!! < 
+!!!!! <         public WriteOrDropResult(WriteOrDropResultType type,
+!!!!! <                                  Promise<Void> writablePromise) {
+!!!!! <             this.type = type;
+!!!!! <             this.writablePromise = writablePromise;
+!!!!! <         }
+!!!!! < 
+!!!!! <         public WriteOrDropResultType type() {
+!!!!! <             return type;
+!!!!! <         }
+!!!!! < 
+!!!!! <         public Promise<Void> writablePromise() {
+!!!!! <             return writablePromise;
+!!!!! <         }
+!!!!! ---
+!!!!! >     public record WriteOrDropResult(
+!!!!! >         WriteOrDropResultType type,
+!!!!! >         Promise<Void> writablePromise
+!!!!! >     ) {
+!!!!! diff return code 1 !!!!!
+
 ##### files are the same: /java/io/vproxy/base/util/web/HttpStatusCodeReasonMap.java #####
 ##### files are the same: /java/io/vproxy/base/util/web/ErrorPages.java #####
 ##### files are the same: /java/io/vproxy/base/util/web/ClasspathResourceHolder.java #####
@@ -330,18 +297,15 @@
 !!!!! > import io.vproxy.base.util.thread.VProxyThread;
 !!!!! 9a11
 !!!!! > import io.vproxy.vfd.FDProvider;
-!!!!! 14a17,18
-!!!!! > import java.lang.foreign.MemorySegment;
-!!!!! > import java.lang.foreign.ValueLayout;
-!!!!! 234c238
+!!!!! 236c238
 !!!!! <             (System.currentTimeMillis() / 60_000 // remove millis and seconds
 !!!!! ---
 !!!!! >             (FDProvider.get().currentTimeMillis() / 60_000 // remove millis and seconds
-!!!!! 636c640
+!!!!! 638c640
 !!!!! <         new Thread(() -> {
 !!!!! ---
 !!!!! >         VProxyThread.create(() -> {
-!!!!! 662c666
+!!!!! 664c666
 !!!!! <         new Thread(() -> {
 !!!!! ---
 !!!!! >         VProxyThread.create(() -> {
@@ -1027,11 +991,184 @@
 !!!!! >     }
 !!!!! diff return code 1 !!!!!
 
+!!!!! diff /java/io/vproxy/base/Config.java !!!!!
+!!!!! 2a3,4
+!!!!! > import io.vproxy.base.util.Logger;
+!!!!! > import io.vproxy.base.util.OS;
+!!!!! 3a6
+!!!!! > import io.vproxy.base.util.log.ProbeType;
+!!!!! 5a9,13
+!!!!! > import java.util.Arrays;
+!!!!! > import java.util.HashSet;
+!!!!! > import java.util.Set;
+!!!!! > import java.util.function.Predicate;
+!!!!! > import java.util.stream.Collectors;
+!!!!! 7a16,60
+!!!!! >     // we only read/assign this value, not increase
+!!!!! >     public static long currentTimestamp = System.currentTimeMillis();
+!!!!! >     // initially we use the java impl because the FDProvider is not initiated yet
+!!!!! > 
+!!!!! >     // the default udpTimeout is the same as LVS
+!!!!! >     // set it smaller if your environment have a smaller udp ttl
+!!!!! >     public static final int udpTimeout = 300 * 1000;
+!!!!! > 
+!!!!! >     // the default tcpTimeout is the same as LVS
+!!!!! >     // set it smaller if your environment have a smaller tcp session ttl
+!!!!! >     public static final int tcpTimeout = 15 * 60_000;
+!!!!! > 
+!!!!! >     // the maximum expected size of a udp packet
+!!!!! >     public static final int udpMtu = 65536;
+!!!!! > 
+!!!!! >     // the recommended min payload length
+!!!!! >     // also, see Processor.PROXY_ZERO_COPY_THRESHOLD
+!!!!! >     public static final int recommendedMinPayloadLength = 1200;
+!!!!! >     // usually mtu is set to 1500, but some routers might set the value to 1480, 1440 or lower
+!!!!! >     // we use 1400 here
+!!!!! > 
+!!!!! >     // whether the loading of configuration is disabled
+!!!!! >     // true = disabled, false = enabled
+!!!!! >     public static boolean configLoadingDisabled = false;
+!!!!! > 
+!!!!! >     // whether the saving of configuration is disabled
+!!!!! >     // true = disabled, false = enabled
+!!!!! >     public static boolean configSavingDisabled = false;
+!!!!! > 
+!!!!! >     // whether modifying configuration is disabled
+!!!!! >     // true = disabled, false = enabled
+!!!!! >     public static boolean configModifyDisabled = false;
+!!!!! > 
+!!!!! >     // whether the program is going to stop
+!!!!! >     // true = will stop, false = normal state
+!!!!! >     public static boolean willStop = false;
+!!!!! > 
+!!!!! >     // whether to check before actual binding a port
+!!!!! >     // true = will check, false = will not check
+!!!!! >     public static boolean checkBind = true;
+!!!!! > 
+!!!!! >     // the location of auto saved file path
+!!!!! >     // null for the default path
+!!!!! >     public static String autoSaveFilePath = null;
+!!!!! > 
+!!!!! 40a94,174
+!!!!! > 
+!!!!! >     // -Deploy=xxx
+!!!!! >     public static final String appClass;
+!!!!! > 
+!!!!! >     // -Dprobe=...
+!!!!! >     public static final Set<ProbeType> probe;
+!!!!! > 
+!!!!! >     private static int supportReusePortLB = 0;
+!!!!! >     // do not initialize the field statically
+!!!!! >     // graalvm native image might initialize the field and won't be changed at runtime
+!!!!! > 
+!!!!! >     // this field is used as the domain to be resolved for health checking for dns
+!!!!! >     // -DomainWhichShouldResolve
+!!!!! >     public static final String domainWhichShouldResolve;
+!!!!! > 
+!!!!! >     // the config file path for mirror
+!!!!! >     // -DmirrorConf=...
+!!!!! >     public static final String mirrorConfigPath;
+!!!!! > 
+!!!!! >     // the nics for dhcp to use
+!!!!! >     // -DhcpGetDnsListNics=all or eth0,eth1,... (split with ',')
+!!!!! >     public static final boolean dhcpGetDnsListEnabled;
+!!!!! >     public static final Predicate<String> dhcpGetDnsListNics;
+!!!!! > 
+!!!!! >     static {
+!!!!! >         appClass = Utils.getSystemProperty("deploy");
+!!!!! >         String probeConf = Utils.getSystemProperty("probe", "");
+!!!!! >         if (probeConf.equals("all")) {
+!!!!! >             probe = Set.of(ProbeType.VIRTUAL_FD_EVENT, ProbeType.STREAMED_ARQ_UDP_EVENT, ProbeType.STREAMED_ARQ_UDP_RECORD);
+!!!!! >         } else {
+!!!!! >             var names = Arrays.stream(probeConf.split(",")).map(String::trim).filter(s -> !s.isEmpty()).collect(Collectors.toSet());
+!!!!! >             var res = new HashSet<ProbeType>();
+!!!!! >             for (var n : names) {
+!!!!! >                 var t = ProbeType.of(n);
+!!!!! >                 if (t == null) {
+!!!!! >                     System.out.println("unknown probe type: " + n);
+!!!!! >                 } else {
+!!!!! >                     res.add(t);
+!!!!! >                 }
+!!!!! >             }
+!!!!! >             probe = res;
+!!!!! >         }
+!!!!! >         domainWhichShouldResolve = Utils.getSystemProperty("domain_which_should_resolve", "127.0.0.1.special.vproxy.io");
+!!!!! >         mirrorConfigPath = Utils.getSystemProperty("mirror_conf", "");
+!!!!! > 
+!!!!! >         String dhcpGetDnsListNicsString = Utils.getSystemProperty("dhcp_get_dns_list_nics", "");
+!!!!! >         if (dhcpGetDnsListNicsString.isBlank()) {
+!!!!! >             dhcpGetDnsListEnabled = false;
+!!!!! >             dhcpGetDnsListNics = n -> false;
+!!!!! >         } else if (dhcpGetDnsListNicsString.trim().equals("all")) {
+!!!!! >             dhcpGetDnsListEnabled = true;
+!!!!! >             dhcpGetDnsListNics = n -> true;
+!!!!! >         } else {
+!!!!! >             var set = Arrays.stream(dhcpGetDnsListNicsString.split(",")).map(String::trim).filter(n -> !n.isEmpty()).collect(Collectors.toSet());
+!!!!! >             dhcpGetDnsListEnabled = true;
+!!!!! >             dhcpGetDnsListNics = set::contains;
+!!!!! >         }
+!!!!! >     }
+!!!!! > 
+!!!!! >     public static boolean supportReusePortLB() {
+!!!!! >         if (supportReusePortLB == -1) {
+!!!!! >             return false;
+!!!!! >         }
+!!!!! >         if (supportReusePortLB == 1) {
+!!!!! >             return true;
+!!!!! >         }
+!!!!! >         String os = OS.name();
+!!!!! >         String version = OS.version();
+!!!!! >         if (OS.isLinux()) {
+!!!!! >             int major = OS.major();
+!!!!! >             int minor = OS.minor();
+!!!!! >             if (major > 3 || (major == 3 && minor >= 9)) {
+!!!!! >                 Logger.alert("reuseport load balancing across sockets supported on " + os + " " + major + "." + minor);
+!!!!! >                 supportReusePortLB = 1;
+!!!!! >                 return true;
+!!!!! >             }
+!!!!! >         }
+!!!!! >         assert Logger.lowLevelDebug("reuseport load balancing NOT supported: " + os + " " + version);
+!!!!! >         supportReusePortLB = -1;
+!!!!! >         return false;
+!!!!! >     }
+!!!!! diff return code 1 !!!!!
+
 ##### files are the same: /java/io/vproxy/base/prometheus/GaugeF.java #####
 ##### files are the same: /java/io/vproxy/base/prometheus/Gauge.java #####
 ##### files are the same: /java/io/vproxy/base/prometheus/Metric.java #####
 ##### files are the same: /java/io/vproxy/base/prometheus/Counter.java #####
 ##### files are the same: /java/io/vproxy/base/prometheus/Metrics.java #####
+##### files are the same: /java/io/vproxy/base/dns/dnsserverlistgetter/GetDnsServerListFromConfigFile.java #####
+##### files are the same: /java/io/vproxy/base/dns/dnsserverlistgetter/GetDnsServerListDefault.java #####
+!!!!! diff /java/io/vproxy/base/dns/DnsServerListGetter.java !!!!!
+!!!!! 2a3
+!!!!! > import io.vproxy.base.Config;
+!!!!! 4a6
+!!!!! > import io.vproxy.base.dns.dnsserverlistgetter.GetDnsServerListFromDhcp;
+!!!!! 20,21c22,28
+!!!!! <         return Arrays.asList(
+!!!!! <             new GetDnsServerListFromConfigFile(), new GetDnsServerListDefault());
+!!!!! ---
+!!!!! >         if (Config.dhcpGetDnsListEnabled) {
+!!!!! >             return Arrays.asList(
+!!!!! >                 new GetDnsServerListFromDhcp(), new GetDnsServerListFromConfigFile(), new GetDnsServerListDefault());
+!!!!! >         } else {
+!!!!! >             return Arrays.asList(
+!!!!! >                 new GetDnsServerListFromConfigFile(), new GetDnsServerListDefault());
+!!!!! >         }
+!!!!! 25,26c32,38
+!!!!! <         return Collections.singletonList(
+!!!!! <             new GetDnsServerListFromConfigFile());
+!!!!! ---
+!!!!! >         if (Config.dhcpGetDnsListEnabled) {
+!!!!! >             return Arrays.asList(
+!!!!! >                 new GetDnsServerListFromDhcp(), new GetDnsServerListFromConfigFile());
+!!!!! >         } else {
+!!!!! >             return Collections.singletonList(
+!!!!! >                 new GetDnsServerListFromConfigFile());
+!!!!! >         }
+!!!!! diff return code 1 !!!!!
+
 ##### commons missing: /java/io/vproxy/xdp/BPFMap.java #####
 ##### commons missing: /java/io/vproxy/xdp/XDPSocket.java #####
 ##### commons missing: /java/io/vproxy/xdp/SharedUMem.java #####
@@ -1335,13 +1472,9 @@
 ##### commons missing: /java/io/vproxy/base/http/connect/HttpConnectContext.java #####
 ##### commons missing: /java/io/vproxy/base/http/connect/HttpConnectProtocolHandler.java #####
 ##### commons missing: /java/io/vproxy/base/dhcp/DHCPClientHelper.java #####
-##### commons missing: /java/io/vproxy/base/Config.java #####
 ##### commons missing: /java/io/vproxy/base/socks/AddressType.java #####
 ##### commons missing: /java/io/vproxy/base/socks/Socks5ClientHandshake.java #####
-##### commons missing: /java/io/vproxy/base/dns/dnsserverlistgetter/GetDnsServerListFromConfigFile.java #####
 ##### commons missing: /java/io/vproxy/base/dns/dnsserverlistgetter/GetDnsServerListFromDhcp.java #####
-##### commons missing: /java/io/vproxy/base/dns/dnsserverlistgetter/GetDnsServerListDefault.java #####
-##### commons missing: /java/io/vproxy/base/dns/DnsServerListGetter.java #####
 ##### commons missing: /java/io/vproxy/base/dns/Resolver.java #####
 ##### commons missing: /java/io/vproxy/base/dns/ResolveListener.java #####
 ##### commons missing: /java/io/vproxy/base/dns/VResolver.java #####

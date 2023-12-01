@@ -5,6 +5,8 @@ module io.vproxy.base {
 
     exports io.vproxy.base;
     exports io.vproxy.base.connection;
+    exports io.vproxy.base.dns;
+    exports io.vproxy.base.dns.dnsserverlistgetter;
     exports io.vproxy.base.prometheus;
     exports io.vproxy.base.util;
     exports io.vproxy.base.util.anno;
