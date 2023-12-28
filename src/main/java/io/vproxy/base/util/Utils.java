@@ -18,8 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
@@ -1123,10 +1121,20 @@ public class Utils {
         return maskValues[maskNumber];
     }
 
+    @SuppressWarnings({"ConcatenationWithEmptyString", "deprecation"})
     public static String formatTimestampForFileName(long ts) {
-        return DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(LocalDateTime.now());
+        Date d = new Date(ts);
+        return "" +
+               (d.getYear() + 1900) + "-" +
+               fillToTen(d.getMonth() + 1) + "-" +
+               fillToTen(d.getDate()) + "_" +
+               fillToTen(d.getHours()) + "-" +
+               fillToTen(d.getMinutes()) + "-" +
+               fillToTen(d.getSeconds()) +
+               "";
     }
 
+    @SuppressWarnings({"ConcatenationWithEmptyString", "deprecation"})
     public static String formatTimestampForLogging(long ts) {
         Date d = new Date(ts);
         return "" +

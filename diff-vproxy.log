@@ -58,21 +58,22 @@
 !!!!! 29a73,74
 !!!!! >     exports io.vproxy.base.util.ringbuffer.ssl;
 !!!!! >     exports io.vproxy.base.util.thread;
-!!!!! 35a81,83
+!!!!! 35a81,84
+!!!!! >     exports io.vproxy.fubuki;
 !!!!! >     exports io.vproxy.msquic.callback;
 !!!!! >     exports io.vproxy.msquic.wrap;
 !!!!! >     exports io.vproxy.msquic;
-!!!!! 36a85,89
+!!!!! 36a86,90
 !!!!! >     exports io.vproxy.vfd.abs;
 !!!!! >     exports io.vproxy.vfd.jdk;
 !!!!! >     exports io.vproxy.vfd.posix;
 !!!!! >     exports io.vproxy.vfd.windows;
 !!!!! >     exports io.vproxy.vmirror;
-!!!!! 37a91,93
+!!!!! 37a92,94
 !!!!! >     exports io.vproxy.vpacket.conntrack;
 !!!!! >     exports io.vproxy.vpacket.conntrack.tcp;
 !!!!! >     exports io.vproxy.vpacket.conntrack.udp;
-!!!!! 42a99,102
+!!!!! 42a100,103
 !!!!! >     exports io.vproxy.xdp;
 !!!!! > 
 !!!!! >     uses io.vproxy.vfd.FDs;
@@ -87,8 +88,51 @@
 ##### files are the same: /java/io/vproxy/commons/graph/GraphBuilder.java #####
 ##### files are the same: /java/io/vproxy/commons/graph/GraphNode.java #####
 ##### files are the same: /java/io/vproxy/commons/graph/Dijkstra.java #####
-##### files are the same: /java/io/vproxy/vfd/IP.java #####
+!!!!! diff /java/io/vproxy/vfd/IP.java !!!!!
+!!!!! 660a661
+!!!!! >     // return -1 if not a valid ip mask
+!!!!! 678,701c679,688
+!!!!! <                 case (byte) 254:
+!!!!! <                     res += 7;
+!!!!! <                     break;
+!!!!! <                 case (byte) 252:
+!!!!! <                     res += 6;
+!!!!! <                     break;
+!!!!! <                 case (byte) 248:
+!!!!! <                     res += 5;
+!!!!! <                     break;
+!!!!! <                 case (byte) 240:
+!!!!! <                     res += 4;
+!!!!! <                     break;
+!!!!! <                 case (byte) 224:
+!!!!! <                     res += 3;
+!!!!! <                     break;
+!!!!! <                 case (byte) 192:
+!!!!! <                     res += 2;
+!!!!! <                     break;
+!!!!! <                 case (byte) 128:
+!!!!! <                     res += 1;
+!!!!! <                     break;
+!!!!! <                 case 0:
+!!!!! <                     break;
+!!!!! <                 default:
+!!!!! ---
+!!!!! >                 case (byte) 254 -> res += 7;
+!!!!! >                 case (byte) 252 -> res += 6;
+!!!!! >                 case (byte) 248 -> res += 5;
+!!!!! >                 case (byte) 240 -> res += 4;
+!!!!! >                 case (byte) 224 -> res += 3;
+!!!!! >                 case (byte) 192 -> res += 2;
+!!!!! >                 case (byte) 128 -> res += 1;
+!!!!! >                 case 0 -> {
+!!!!! >                 }
+!!!!! >                 default -> {
+!!!!! 702a690
+!!!!! >                 }
+!!!!! diff return code 1 !!!!!
+
 ##### files are the same: /java/io/vproxy/vfd/WritableByteStream.java #####
+##### files are the same: /java/io/vproxy/vfd/IPMask.java #####
 !!!!! diff /java/io/vproxy/vfd/IPPort.java !!!!!
 !!!!! 7c7
 !!!!! < public class IPPort {
@@ -107,6 +151,7 @@
 ##### files are the same: /java/io/vproxy/vpacket/PacketDataBuffer.java #####
 ##### files are the same: /java/io/vproxy/vpacket/ArpPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/Ipv6Packet.java #####
+##### files are the same: /java/io/vproxy/vpacket/PcapParser.java #####
 ##### files are the same: /java/io/vproxy/vpacket/AbstractIpPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/IcmpPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/UdpPacket.java #####
@@ -115,6 +160,7 @@
 ##### files are the same: /java/io/vproxy/vpacket/EthernetPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/Ipv4Packet.java #####
 ##### files are the same: /java/io/vproxy/vpacket/TcpPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/PcapPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/dhcp/options/PadOption.java #####
 ##### files are the same: /java/io/vproxy/vpacket/dhcp/options/EndOption.java #####
 ##### files are the same: /java/io/vproxy/vpacket/dhcp/options/ParameterRequestListOption.java #####
@@ -125,6 +171,7 @@
 ##### files are the same: /java/io/vproxy/vpacket/PartialPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/AbstractPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/TransportPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/PcapGlobalHeader.java #####
 ##### files are the same: /java/io/vproxy/vpacket/dns/DNSRecord.java #####
 ##### files are the same: /java/io/vproxy/vpacket/dns/DNSResource.java #####
 ##### files are the same: /java/io/vproxy/vpacket/dns/DNSPacket.java #####
@@ -297,15 +344,15 @@
 !!!!! > import io.vproxy.base.util.thread.VProxyThread;
 !!!!! 9a11
 !!!!! > import io.vproxy.vfd.FDProvider;
-!!!!! 236c238
+!!!!! 234c236
 !!!!! <             (System.currentTimeMillis() / 60_000 // remove millis and seconds
 !!!!! ---
 !!!!! >             (FDProvider.get().currentTimeMillis() / 60_000 // remove millis and seconds
-!!!!! 638c640
+!!!!! 636c638
 !!!!! <         new Thread(() -> {
 !!!!! ---
 !!!!! >         VProxyThread.create(() -> {
-!!!!! 664c666
+!!!!! 662c664
 !!!!! <         new Thread(() -> {
 !!!!! ---
 !!!!! >         VProxyThread.create(() -> {
@@ -585,6 +632,7 @@
 ##### files are the same: /java/io/vproxy/base/util/bytearray/SimpleByteArray.java #####
 ##### files are the same: /java/io/vproxy/base/util/bytearray/CompositeByteArray.java #####
 ##### files are the same: /java/io/vproxy/base/util/bytearray/OneByteArray.java #####
+##### files are the same: /java/io/vproxy/base/util/bytearray/RandomAccessFileByteArray.java #####
 ##### files are the same: /java/io/vproxy/base/util/bytearray/ByteArrayBuilder.java #####
 ##### files are the same: /java/io/vproxy/base/util/time/impl/TimeElemImpl.java #####
 ##### files are the same: /java/io/vproxy/base/util/time/impl/TimeQueueImpl.java #####
@@ -1263,6 +1311,9 @@
 ##### commons missing: /java/io/vproxy/vmirror/MirrorConfig.java #####
 ##### commons missing: /java/io/vproxy/vmirror/MirrorDataFactory.java #####
 ##### commons missing: /java/io/vproxy/vmirror/FilterConfig.java #####
+##### commons missing: /java/io/vproxy/fubuki/Fubuki.java #####
+##### commons missing: /java/io/vproxy/fubuki/FubukiUpcall.java #####
+##### commons missing: /java/io/vproxy/fubuki/FubukiCallback.java #####
 ##### commons missing: /java/io/vproxy/base/selector/Handler.java #####
 ##### commons missing: /java/io/vproxy/base/selector/SelectorEventLoop.java #####
 ##### commons missing: /java/io/vproxy/base/selector/HandlerContext.java #####
@@ -1346,6 +1397,7 @@
 ##### commons missing: /java/io/vproxy/base/util/ringbuffer/SimpleRingBufferReaderCommitter.java #####
 ##### commons missing: /java/io/vproxy/base/util/ringbuffer/SSLUnwrapRingBuffer.java #####
 ##### commons missing: /java/io/vproxy/base/util/ringbuffer/SSLUtils.java #####
+##### commons missing: /java/io/vproxy/base/util/misc/WithUserData.java #####
 ##### commons missing: /java/io/vproxy/base/util/Annotations.java #####
 ##### commons missing: /java/io/vproxy/base/util/crypto/StreamingCFBCipher.java #####
 ##### commons missing: /java/io/vproxy/base/util/crypto/CryptoUtils.java #####
