@@ -4,15 +4,13 @@ import io.vproxy.base.dns.DnsServerListGetter;
 import io.vproxy.base.util.*;
 import io.vproxy.base.util.callback.BlockCallback;
 import io.vproxy.vpacket.dns.*;
+import io.vproxy.vpacket.dns.Formatter;
 import io.vproxy.vpacket.dns.rdata.A;
 import io.vproxy.vpacket.dns.rdata.AAAA;
 
 import java.io.IOException;
 import java.net.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public abstract class IP implements ToByteArray {
@@ -179,13 +177,24 @@ public abstract class IP implements ToByteArray {
 
     abstract public IPv6 to6();
 
+    abstract public IP stripHostname();
+
     @Override
     public String toString() {
         return (hostname == null ? "" : hostname) + "/" + formatToIPString(); // compatible with java InetAddress
     }
 
     @Override
-    abstract public boolean equals(Object o);
+    public boolean equals(Object o) {
+        if (!(o instanceof IP))
+            return false;
+        var that = (IP) o;
+        if (!ipEquals(o))
+            return false;
+        return Objects.equals(hostname, that.hostname);
+    }
+
+    abstract public boolean ipEquals(Object o);
 
     @Override
     abstract public int hashCode();
@@ -658,6 +667,7 @@ public abstract class IP implements ToByteArray {
         return toPrefixLength() != -1;
     }
 
+    // return -1 if not a valid ip mask
     public int toPrefixLength() {
         int res = 0;
         boolean mustBeZero = false;

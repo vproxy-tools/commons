@@ -265,6 +265,16 @@ public class MemorySegmentByteArray extends AbstractByteArray implements ByteArr
     }
 
     @Override
+    public ByteArray int16ReverseNetworkByteOrder(int offset, int val) {
+        try {
+            setShort.invoke(seg, SHORT_LITTLE_ENDIAN, offset, (short) val);
+        } catch (Throwable e) {
+            throw new UnsupportedOperationException(e);
+        }
+        return this;
+    }
+
+    @Override
     public ByteArray int32(int offset, int val) {
         try {
             setInt.invoke(seg, INT_BIG_ENDIAN, offset, val);
@@ -275,9 +285,29 @@ public class MemorySegmentByteArray extends AbstractByteArray implements ByteArr
     }
 
     @Override
+    public ByteArray int32ReverseNetworkByteOrder(int offset, int val) {
+        try {
+            setInt.invoke(seg, INT_LITTLE_ENDIAN, offset, val);
+        } catch (Throwable e) {
+            throw new UnsupportedOperationException(e);
+        }
+        return this;
+    }
+
+    @Override
     public ByteArray int64(int offset, long val) {
         try {
             setLong.invoke(seg, LONG_BIG_ENDIAN, offset, val);
+        } catch (Throwable e) {
+            throw new UnsupportedOperationException(e);
+        }
+        return this;
+    }
+
+    @Override
+    public ByteArray int64ReverseNetworkByteOrder(int offset, long val) {
+        try {
+            setLong.invoke(seg, LONG_LITTLE_ENDIAN, offset, val);
         } catch (Throwable e) {
             throw new UnsupportedOperationException(e);
         }

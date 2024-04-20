@@ -89,9 +89,13 @@
 ##### files are the same: /java/io/vproxy/commons/graph/GraphNode.java #####
 ##### files are the same: /java/io/vproxy/commons/graph/Dijkstra.java #####
 !!!!! diff /java/io/vproxy/vfd/IP.java !!!!!
-!!!!! 660a661
-!!!!! >     // return -1 if not a valid ip mask
-!!!!! 678,701c679,688
+!!!!! 189c189
+!!!!! <         if (!(o instanceof IP))
+!!!!! ---
+!!!!! >         if (!(o instanceof IP that))
+!!!!! 191d190
+!!!!! <         var that = (IP) o;
+!!!!! 688,711c687,696
 !!!!! <                 case (byte) 254:
 !!!!! <                     res += 7;
 !!!!! <                     break;
@@ -127,7 +131,7 @@
 !!!!! >                 case 0 -> {
 !!!!! >                 }
 !!!!! >                 default -> {
-!!!!! 702a690
+!!!!! 712a698
 !!!!! >                 }
 !!!!! diff return code 1 !!!!!
 
@@ -150,7 +154,30 @@
 ##### files are the same: /java/io/vproxy/vfd/MacAddress.java #####
 ##### files are the same: /java/io/vproxy/vpacket/PacketDataBuffer.java #####
 ##### files are the same: /java/io/vproxy/vpacket/ArpPacket.java #####
-##### files are the same: /java/io/vproxy/vpacket/Ipv6Packet.java #####
+!!!!! diff /java/io/vproxy/vpacket/Ipv6Packet.java !!!!!
+!!!!! 166,176c166,173
+!!!!! <         if (protocol == Consts.IP_PROTOCOL_ICMP || protocol == Consts.IP_PROTOCOL_ICMPv6) {
+!!!!! <             packet = new IcmpPacket(protocol == Consts.IP_PROTOCOL_ICMPv6);
+!!!!! <         } else if (protocol == Consts.IP_PROTOCOL_TCP) {
+!!!!! <             packet = new TcpPacket();
+!!!!! <         } else if (protocol == Consts.IP_PROTOCOL_UDP) {
+!!!!! <             packet = new UdpPacket();
+!!!!! <         } else if (protocol == Consts.IP_PROTOCOL_ETHERIP) {
+!!!!! <             packet = new EtherIPPacket();
+!!!!! <         } else {
+!!!!! <             packet = new PacketBytes();
+!!!!! <         }
+!!!!! ---
+!!!!! >         packet = switch (protocol) {
+!!!!! >             case Consts.IP_PROTOCOL_ICMP -> new IcmpPacket(false);
+!!!!! >             case Consts.IP_PROTOCOL_ICMPv6 -> new IcmpPacket(true);
+!!!!! >             case Consts.IP_PROTOCOL_TCP -> new TcpPacket();
+!!!!! >             case Consts.IP_PROTOCOL_UDP -> new UdpPacket();
+!!!!! >             case Consts.IP_PROTOCOL_ETHERIP -> new EtherIPPacket();
+!!!!! >             default -> new PacketBytes();
+!!!!! >         };
+!!!!! diff return code 1 !!!!!
+
 ##### files are the same: /java/io/vproxy/vpacket/PcapParser.java #####
 ##### files are the same: /java/io/vproxy/vpacket/AbstractIpPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/IcmpPacket.java #####
@@ -158,9 +185,40 @@
 ##### files are the same: /java/io/vproxy/vpacket/tuples/PacketFullTuple.java #####
 ##### files are the same: /java/io/vproxy/vpacket/VXLanPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/EthernetPacket.java #####
-##### files are the same: /java/io/vproxy/vpacket/Ipv4Packet.java #####
+!!!!! diff /java/io/vproxy/vpacket/Ipv4Packet.java !!!!!
+!!!!! 151,161c151,157
+!!!!! <         if (protocol == Consts.IP_PROTOCOL_ICMP) {
+!!!!! <             packet = new IcmpPacket(false);
+!!!!! <         } else if (protocol == Consts.IP_PROTOCOL_TCP) {
+!!!!! <             packet = new TcpPacket();
+!!!!! <         } else if (protocol == Consts.IP_PROTOCOL_UDP) {
+!!!!! <             packet = new UdpPacket();
+!!!!! <         } else if (protocol == Consts.IP_PROTOCOL_ETHERIP) {
+!!!!! <             packet = new EtherIPPacket();
+!!!!! <         } else {
+!!!!! <             packet = new PacketBytes();
+!!!!! <         }
+!!!!! ---
+!!!!! >         packet = switch (protocol) {
+!!!!! >             case Consts.IP_PROTOCOL_ICMP -> new IcmpPacket(false);
+!!!!! >             case Consts.IP_PROTOCOL_TCP -> new TcpPacket();
+!!!!! >             case Consts.IP_PROTOCOL_UDP -> new UdpPacket();
+!!!!! >             case Consts.IP_PROTOCOL_ETHERIP -> new EtherIPPacket();
+!!!!! >             default -> new PacketBytes();
+!!!!! >         };
+!!!!! diff return code 1 !!!!!
+
+##### files are the same: /java/io/vproxy/vpacket/EtherIPPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/TcpPacket.java #####
-##### files are the same: /java/io/vproxy/vpacket/PcapPacket.java #####
+!!!!! diff /java/io/vproxy/vpacket/PcapPacket.java !!!!!
+!!!!! 4a5
+!!!!! > import io.vproxy.vfd.FDProvider;
+!!!!! 17c18
+!!!!! <         this(System.currentTimeMillis(), packet);
+!!!!! ---
+!!!!! >         this(FDProvider.get().currentTimeMillis(), packet);
+!!!!! diff return code 1 !!!!!
+
 ##### files are the same: /java/io/vproxy/vpacket/dhcp/options/PadOption.java #####
 ##### files are the same: /java/io/vproxy/vpacket/dhcp/options/EndOption.java #####
 ##### files are the same: /java/io/vproxy/vpacket/dhcp/options/ParameterRequestListOption.java #####
@@ -169,6 +227,7 @@
 ##### files are the same: /java/io/vproxy/vpacket/dhcp/DHCPOption.java #####
 ##### files are the same: /java/io/vproxy/vpacket/dhcp/DHCPPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/PartialPacket.java #####
+##### files are the same: /java/io/vproxy/vpacket/LinuxCookedPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/AbstractPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/TransportPacket.java #####
 ##### files are the same: /java/io/vproxy/vpacket/PcapGlobalHeader.java #####
@@ -187,6 +246,7 @@
 ##### files are the same: /java/io/vproxy/vpacket/dns/InvalidDNSPacketException.java #####
 ##### files are the same: /java/io/vproxy/vpacket/dns/DNSType.java #####
 ##### files are the same: /java/io/vproxy/vpacket/dns/DNSQuestion.java #####
+##### files are the same: /java/io/vproxy/vpacket/BSDLoopbackEncapsulation.java #####
 ##### files are the same: /java/io/vproxy/vpacket/PacketBytes.java #####
 ##### files are the same: /java/io/vproxy/base/connection/Protocol.java #####
 ##### files are the same: /java/io/vproxy/base/util/ringbuffer/AbstractRingBuffer.java #####
@@ -612,13 +672,29 @@
 !!!!! >         seg.set(SHORT_BIG_ENDIAN, offset, (short) val);
 !!!!! 269,273c114
 !!!!! <         try {
+!!!!! <             setShort.invoke(seg, SHORT_LITTLE_ENDIAN, offset, (short) val);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         seg.set(SHORT_LITTLE_ENDIAN, offset, (short) val);
+!!!!! 279,283c120
+!!!!! <         try {
 !!!!! <             setInt.invoke(seg, INT_BIG_ENDIAN, offset, val);
 !!!!! <         } catch (Throwable e) {
 !!!!! <             throw new UnsupportedOperationException(e);
 !!!!! <         }
 !!!!! ---
 !!!!! >         seg.set(INT_BIG_ENDIAN, offset, val);
-!!!!! 279,283c120
+!!!!! 289,293c126
+!!!!! <         try {
+!!!!! <             setInt.invoke(seg, INT_LITTLE_ENDIAN, offset, val);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         seg.set(INT_LITTLE_ENDIAN, offset, val);
+!!!!! 299,303c132
 !!!!! <         try {
 !!!!! <             setLong.invoke(seg, LONG_BIG_ENDIAN, offset, val);
 !!!!! <         } catch (Throwable e) {
@@ -626,6 +702,14 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         seg.set(LONG_BIG_ENDIAN, offset, val);
+!!!!! 309,313c138
+!!!!! <         try {
+!!!!! <             setLong.invoke(seg, LONG_LITTLE_ENDIAN, offset, val);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         seg.set(LONG_LITTLE_ENDIAN, offset, val);
 !!!!! diff return code 1 !!!!!
 
 ##### files are the same: /java/io/vproxy/base/util/bytearray/AbstractByteArray.java #####
@@ -746,6 +830,7 @@
 ##### files are the same: /java/io/vproxy/base/util/exception/NoException.java #####
 ##### files are the same: /java/io/vproxy/base/util/exception/ConflictException.java #####
 ##### files are the same: /java/io/vproxy/base/util/exception/StillRunningException.java #####
+##### files are the same: /java/io/vproxy/base/util/exception/PreconditionUnsatisfiedException.java #####
 ##### files are the same: /java/io/vproxy/base/util/exception/AlreadyExistException.java #####
 ##### files are the same: /java/io/vproxy/base/util/exception/NotFoundException.java #####
 ##### files are the same: /java/io/vproxy/base/util/exception/XException.java #####
@@ -1097,7 +1182,7 @@
 !!!!! >     // null for the default path
 !!!!! >     public static String autoSaveFilePath = null;
 !!!!! > 
-!!!!! 40a94,174
+!!!!! 40a94,169
 !!!!! > 
 !!!!! >     // -Deploy=xxx
 !!!!! >     public static final String appClass;
@@ -1112,10 +1197,6 @@
 !!!!! >     // this field is used as the domain to be resolved for health checking for dns
 !!!!! >     // -DomainWhichShouldResolve
 !!!!! >     public static final String domainWhichShouldResolve;
-!!!!! > 
-!!!!! >     // the config file path for mirror
-!!!!! >     // -DmirrorConf=...
-!!!!! >     public static final String mirrorConfigPath;
 !!!!! > 
 !!!!! >     // the nics for dhcp to use
 !!!!! >     // -DhcpGetDnsListNics=all or eth0,eth1,... (split with ',')
@@ -1141,7 +1222,6 @@
 !!!!! >             probe = res;
 !!!!! >         }
 !!!!! >         domainWhichShouldResolve = Utils.getSystemProperty("domain_which_should_resolve", "127.0.0.1.special.vproxy.io");
-!!!!! >         mirrorConfigPath = Utils.getSystemProperty("mirror_conf", "");
 !!!!! > 
 !!!!! >         String dhcpGetDnsListNicsString = Utils.getSystemProperty("dhcp_get_dns_list_nics", "");
 !!!!! >         if (dhcpGetDnsListNicsString.isBlank()) {
