@@ -408,11 +408,11 @@
 !!!!! <             (System.currentTimeMillis() / 60_000 // remove millis and seconds
 !!!!! ---
 !!!!! >             (FDProvider.get().currentTimeMillis() / 60_000 // remove millis and seconds
-!!!!! 636c638
+!!!!! 641c643
 !!!!! <         new Thread(() -> {
 !!!!! ---
 !!!!! >         VProxyThread.create(() -> {
-!!!!! 662c664
+!!!!! 667c669
 !!!!! <         new Thread(() -> {
 !!!!! ---
 !!!!! >         VProxyThread.create(() -> {
@@ -521,7 +521,11 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >     public MemorySegmentByteArray(MemorySegment seg) {
-!!!!! 103,107c19
+!!!!! 101c17
+!!!!! <     public Object getMemorySegment() {
+!!!!! ---
+!!!!! >     public MemorySegment getMemorySegment() {
+!!!!! 107,111c23
 !!!!! <         try {
 !!!!! <             return (byte) getByte.invoke(seg, JAVA_BYTE, idx);
 !!!!! <         } catch (Throwable e) {
@@ -529,7 +533,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         return seg.get(ValueLayout.JAVA_BYTE, idx);
-!!!!! 112,116c24
+!!!!! 116,120c28
 !!!!! <         try {
 !!!!! <             setByte.invoke(seg, JAVA_BYTE, idx, value);
 !!!!! <         } catch (Throwable e) {
@@ -537,7 +541,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         seg.set(ValueLayout.JAVA_BYTE, idx, value);
-!!!!! 122,126c30
+!!!!! 126,130c34
 !!!!! <         try {
 !!!!! <             return (int) ((long) byteSize.invoke(seg));
 !!!!! <         } catch (Throwable e) {
@@ -545,7 +549,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         return (int) seg.byteSize();
-!!!!! 131,135c35
+!!!!! 135,139c39
 !!!!! <         try {
 !!!!! <             dst.put(((ByteBuffer) asByteBuffer.invoke(seg)).limit(off + len).position(off));
 !!!!! <         } catch (Throwable e) {
@@ -553,7 +557,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         dst.put(seg.asByteBuffer().limit(off + len).position(off));
-!!!!! 140,144c40
+!!!!! 144,148c44
 !!!!! <         try {
 !!!!! <             ((ByteBuffer) asByteBuffer.invoke(seg)).limit(off + len).position(off).put(src);
 !!!!! <         } catch (Throwable e) {
@@ -561,11 +565,11 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         seg.asByteBuffer().limit(off + len).position(off).put(src);
-!!!!! 149c45
+!!!!! 153c49
 !!!!! <         if (!(dst instanceof MemorySegmentByteArray)) {
 !!!!! ---
 !!!!! >         if (!(dst instanceof MemorySegmentByteArray segBuf)) {
-!!!!! 153,170c49
+!!!!! 157,174c53
 !!!!! <         var segBuf = (MemorySegmentByteArray) dst;
 !!!!! <         Object segBufSegSlice;
 !!!!! <         try {
@@ -586,7 +590,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         segBuf.seg.asSlice(dstOff, srcLen).copyFrom(this.seg.asSlice(srcOff, srcLen));
-!!!!! 175,181c54
+!!!!! 179,185c58
 !!!!! <         ByteBuffer buf;
 !!!!! <         try {
 !!!!! <             buf = (ByteBuffer) asByteBuffer.invoke(seg);
@@ -596,13 +600,13 @@
 !!!!! <         buf.limit(srcOff + srcLen).position(srcOff).get(dst, dstOff, srcLen);
 !!!!! ---
 !!!!! >         seg.asByteBuffer().limit(srcOff + srcLen).position(srcOff).get(dst, dstOff, srcLen);
-!!!!! 184,185c57,58
+!!!!! 188,189c61,62
 !!!!! <     private static final Object LONG_BIG_ENDIAN;
 !!!!! <     private static final Object LONG_LITTLE_ENDIAN;
 !!!!! ---
 !!!!! >     private static final ValueLayout.OfLong LONG_BIG_ENDIAN = ValueLayout.JAVA_LONG_UNALIGNED.withOrder(ByteOrder.BIG_ENDIAN);
 !!!!! >     private static final ValueLayout.OfLong LONG_LITTLE_ENDIAN = ValueLayout.JAVA_LONG_UNALIGNED.withOrder(ByteOrder.LITTLE_ENDIAN);
-!!!!! 189,193c62
+!!!!! 193,197c66
 !!!!! <         try {
 !!!!! <             return (long) getLong.invoke(seg, LONG_BIG_ENDIAN, offset);
 !!!!! <         } catch (Throwable e) {
@@ -610,7 +614,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         return seg.get(LONG_BIG_ENDIAN, offset);
-!!!!! 198,202c67
+!!!!! 202,206c71
 !!!!! <         try {
 !!!!! <             return (long) getLong.invoke(seg, LONG_LITTLE_ENDIAN, offset);
 !!!!! <         } catch (Throwable e) {
@@ -618,13 +622,13 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         return seg.get(LONG_LITTLE_ENDIAN, offset);
-!!!!! 205,206c70,71
+!!!!! 209,210c74,75
 !!!!! <     private static final Object INT_BIG_ENDIAN;
 !!!!! <     private static final Object INT_LITTLE_ENDIAN;
 !!!!! ---
 !!!!! >     private static final ValueLayout.OfInt INT_BIG_ENDIAN = ValueLayout.JAVA_INT_UNALIGNED.withOrder(ByteOrder.BIG_ENDIAN);
 !!!!! >     private static final ValueLayout.OfInt INT_LITTLE_ENDIAN = ValueLayout.JAVA_INT_UNALIGNED.withOrder(ByteOrder.LITTLE_ENDIAN);
-!!!!! 210,214c75
+!!!!! 214,218c79
 !!!!! <         try {
 !!!!! <             return (int) getInt.invoke(seg, INT_BIG_ENDIAN, offset);
 !!!!! <         } catch (Throwable e) {
@@ -632,7 +636,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         return seg.get(INT_BIG_ENDIAN, offset);
-!!!!! 219,223c80
+!!!!! 223,227c84
 !!!!! <         try {
 !!!!! <             return (int) getInt.invoke(seg, INT_LITTLE_ENDIAN, offset);
 !!!!! <         } catch (Throwable e) {
@@ -640,13 +644,13 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         return seg.get(INT_LITTLE_ENDIAN, offset);
-!!!!! 236,237c93,94
+!!!!! 240,241c97,98
 !!!!! <     private static final Object SHORT_BIG_ENDIAN;
 !!!!! <     private static final Object SHORT_LITTLE_ENDIAN;
 !!!!! ---
 !!!!! >     private static final ValueLayout.OfShort SHORT_BIG_ENDIAN = ValueLayout.JAVA_SHORT_UNALIGNED.withOrder(ByteOrder.BIG_ENDIAN);
 !!!!! >     private static final ValueLayout.OfShort SHORT_LITTLE_ENDIAN = ValueLayout.JAVA_SHORT_UNALIGNED.withOrder(ByteOrder.LITTLE_ENDIAN);
-!!!!! 241,245c98
+!!!!! 245,249c102
 !!!!! <         try {
 !!!!! <             return ((short) getShort.invoke(seg, SHORT_BIG_ENDIAN, offset)) & 0xffff;
 !!!!! <         } catch (Throwable e) {
@@ -654,7 +658,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         return seg.get(SHORT_BIG_ENDIAN, offset) & 0xffff;
-!!!!! 250,254c103
+!!!!! 254,258c107
 !!!!! <         try {
 !!!!! <             return ((short) getShort.invoke(seg, SHORT_LITTLE_ENDIAN, offset)) & 0xffff;
 !!!!! <         } catch (Throwable e) {
@@ -662,7 +666,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         return seg.get(SHORT_LITTLE_ENDIAN, offset) & 0xffff;
-!!!!! 259,263c108
+!!!!! 263,267c112
 !!!!! <         try {
 !!!!! <             setShort.invoke(seg, SHORT_BIG_ENDIAN, offset, (short) val);
 !!!!! <         } catch (Throwable e) {
@@ -670,7 +674,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         seg.set(SHORT_BIG_ENDIAN, offset, (short) val);
-!!!!! 269,273c114
+!!!!! 273,277c118
 !!!!! <         try {
 !!!!! <             setShort.invoke(seg, SHORT_LITTLE_ENDIAN, offset, (short) val);
 !!!!! <         } catch (Throwable e) {
@@ -678,7 +682,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         seg.set(SHORT_LITTLE_ENDIAN, offset, (short) val);
-!!!!! 279,283c120
+!!!!! 283,287c124
 !!!!! <         try {
 !!!!! <             setInt.invoke(seg, INT_BIG_ENDIAN, offset, val);
 !!!!! <         } catch (Throwable e) {
@@ -686,7 +690,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         seg.set(INT_BIG_ENDIAN, offset, val);
-!!!!! 289,293c126
+!!!!! 293,297c130
 !!!!! <         try {
 !!!!! <             setInt.invoke(seg, INT_LITTLE_ENDIAN, offset, val);
 !!!!! <         } catch (Throwable e) {
@@ -694,7 +698,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         seg.set(INT_LITTLE_ENDIAN, offset, val);
-!!!!! 299,303c132
+!!!!! 303,307c136
 !!!!! <         try {
 !!!!! <             setLong.invoke(seg, LONG_BIG_ENDIAN, offset, val);
 !!!!! <         } catch (Throwable e) {
@@ -702,7 +706,7 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         seg.set(LONG_BIG_ENDIAN, offset, val);
-!!!!! 309,313c138
+!!!!! 313,317c142
 !!!!! <         try {
 !!!!! <             setLong.invoke(seg, LONG_LITTLE_ENDIAN, offset, val);
 !!!!! <         } catch (Throwable e) {
@@ -710,6 +714,15 @@
 !!!!! <         }
 !!!!! ---
 !!!!! >         seg.set(LONG_LITTLE_ENDIAN, offset, val);
+!!!!! 323,328c148
+!!!!! <         Object newSeg;
+!!!!! <         try {
+!!!!! <             newSeg = asSlice.invoke(seg, fromInclusive, len);
+!!!!! <         } catch (Throwable e) {
+!!!!! <             throw new UnsupportedOperationException(e);
+!!!!! <         }
+!!!!! ---
+!!!!! >         var newSeg = seg.asSlice(fromInclusive, len);
 !!!!! diff return code 1 !!!!!
 
 ##### files are the same: /java/io/vproxy/base/util/bytearray/AbstractByteArray.java #####
@@ -1383,7 +1396,6 @@
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpListenEntry.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpListenHandler.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/Conntrack.java #####
-##### commons missing: /java/io/vproxy/vpacket/VProxyEncryptedPacket.java #####
 ##### commons missing: /java/io/vproxy/vmirror/MirrorContext.java #####
 ##### commons missing: /java/io/vproxy/vmirror/MirrorData.java #####
 ##### commons missing: /java/io/vproxy/vmirror/Mirror.java #####

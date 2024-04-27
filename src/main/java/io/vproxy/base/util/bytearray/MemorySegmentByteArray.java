@@ -98,6 +98,10 @@ public class MemorySegmentByteArray extends AbstractByteArray implements ByteArr
         this.seg = seg;
     }
 
+    public Object getMemorySegment() {
+        return seg;
+    }
+
     @Override
     public byte get(int idx) {
         try {
@@ -312,5 +316,16 @@ public class MemorySegmentByteArray extends AbstractByteArray implements ByteArr
             throw new UnsupportedOperationException(e);
         }
         return this;
+    }
+
+    @Override
+    public ByteArray sub(int fromInclusive, int len) {
+        Object newSeg;
+        try {
+            newSeg = asSlice.invoke(seg, fromInclusive, len);
+        } catch (Throwable e) {
+            throw new UnsupportedOperationException(e);
+        }
+        return new MemorySegmentByteArray(newSeg);
     }
 }
