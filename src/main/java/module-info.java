@@ -1,22 +1,26 @@
 module io.vproxy.base {
     requires jdk.unsupported;
     requires vjson;
-    requires kotlin.stdlib;
 
     exports io.vproxy.base;
     exports io.vproxy.base.connection;
     exports io.vproxy.base.dns;
     exports io.vproxy.base.dns.dnsserverlistgetter;
+    exports io.vproxy.base.http;
+    exports io.vproxy.base.processor.http1.builder;
+    exports io.vproxy.base.processor.http1.entity;
     exports io.vproxy.base.prometheus;
     exports io.vproxy.base.util;
     exports io.vproxy.base.util.anno;
     exports io.vproxy.base.util.bitwise;
     exports io.vproxy.base.util.bytearray;
     exports io.vproxy.base.util.callback;
+    exports io.vproxy.base.util.codec;
     exports io.vproxy.base.util.coll;
     exports io.vproxy.base.util.direct;
     exports io.vproxy.base.util.display;
     exports io.vproxy.base.util.exception;
+    exports io.vproxy.base.util.file;
     exports io.vproxy.base.util.functional;
     exports io.vproxy.base.util.io;
     exports io.vproxy.base.util.log;

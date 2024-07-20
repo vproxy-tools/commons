@@ -120,8 +120,13 @@ public class Utils {
 
     public static String formatErr(Throwable err) {
         String base = formatErrBase(err);
-        if (err instanceof RuntimeException || Logger.stackTraceOn) {
-            return base + Arrays.asList(err.getStackTrace());
+        if (err instanceof RuntimeException || err instanceof Error || Logger.stackTraceOn) {
+            var cause = err.getCause();
+            if (cause != null) {
+                return base + Arrays.asList(err.getStackTrace()) + "\tcause: " + formatErr(cause);
+            } else {
+                return base + Arrays.asList(err.getStackTrace());
+            }
         } else {
             return base;
         }
@@ -340,6 +345,25 @@ public class Utils {
         return ret;
     }
 
+    public static boolean equalsIgnoreCase(StringBuilder actual, char[] expected) {
+        if (actual.length() != expected.length) {
+            return false;
+        }
+        for (int i = 0; i < expected.length; ++i) {
+            char e = expected[i];
+            char a = actual.charAt(i);
+            if ('A' <= e && e <= 'Z') {
+                e += 'a' - 'A';
+            }
+            if ('A' <= a && a <= 'Z') {
+                a -= 'a' - 'A';
+            }
+            if (a != e)
+                return false;
+        }
+        return true;
+    }
+
     public static byte[] binToBytes(String bin) {
         char[] chars = bin.toCharArray();
         if (chars.length % 8 != 0) throw new IllegalArgumentException("invalid bin string");
@@ -534,6 +558,16 @@ public class Utils {
         return n > 0;
     }
 
+    public static boolean isPortInteger(String s) {
+        int n;
+        try {
+            n = Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        return 1 <= n && n <= 65535;
+    }
+
     public static boolean isLong(String s) {
         try {
             Long.parseLong(s);
@@ -563,15 +597,18 @@ public class Utils {
         }
         File file = File.createTempFile("script", OS.isWindows() ? ".bat" : ".sh");
         try {
-            Files.writeString(file.toPath(), script);
+            script = "@echo off\r\n" + script;
+            Files.writeString(file.toPath(), script, OS.shellCharset());
             if (!file.setExecutable(true)) {
-                throw new Exception("setting executable to script " + file.getAbsolutePath() + " failed");
+                throw new Exception("chmod +x " + file.getAbsolutePath() + " failed");
             }
+            var filePath = file.getAbsolutePath();
+            filePath = new String(filePath.getBytes(OS.shellCharset()), OS.shellCharset());
             ProcessBuilder pb;
             if (OS.isWindows()) {
-                pb = new ProcessBuilder("cmd.exe", "/c", file.getAbsolutePath());
+                pb = new ProcessBuilder("cmd.exe", "/c", filePath);
             } else {
-                pb = new ProcessBuilder(file.getAbsolutePath());
+                pb = new ProcessBuilder(filePath);
             }
             return execute(pb, timeout, getResult);
         } finally {
@@ -995,22 +1032,27 @@ public class Utils {
             throw new UnsatisfiedLinkError(Utils.formatErr(e));
         }
         f.deleteOnExit();
+        String md5hex;
         try (is) {
+            var md = MessageDigest.getInstance("MD5");
             byte[] buf = new byte[1024];
             try (FileOutputStream fos = new FileOutputStream(f)) {
                 int n;
                 while ((n = is.read(buf)) > 0) {
                     fos.write(buf, 0, n);
+                    md.update(buf, 0, n);
                 }
                 fos.flush();
             }
-        } catch (IOException e) {
+            var md5Bytes = md.digest();
+            md5hex = ByteArray.from(md5Bytes).toHexString();
+        } catch (IOException | NoSuchAlgorithmException e) {
             throw new UnsatisfiedLinkError(Utils.formatErr(e));
         }
         if (!f.setExecutable(true)) {
             throw new UnsatisfiedLinkError("failed setting executable on tmp file " + f.getAbsolutePath());
         }
-        System.out.println("System.load(" + f.getAbsolutePath() + ")");
+        System.out.println("System.load(" + f.getAbsolutePath() + ")\tmd5=" + md5hex);
         System.load(f.getAbsolutePath());
         //noinspection ResultOfMethodCallIgnored
         f.delete();

@@ -1,36 +1,36 @@
 !!!!! diff /java/module-info.java !!!!!
-!!!!! 3d2
-!!!!! <     requires vjson;
-!!!!! 4a4,5
+!!!!! 2a3,4
+!!!!! >     requires kotlin.stdlib;
 !!!!! >     requires kotlinx.coroutines.core;
-!!!!! >     requires vjson;
-!!!!! 5a7,9
+!!!!! 4a7,12
 !!!!! >     requires transitive io.vproxy.dep;
 !!!!! >     requires io.vproxy.pni;
+!!!!! >     requires io.vproxy.pni.graal;
+!!!!! >     requires org.graalvm.nativeimage;
+!!!!! >     requires org.graalvm.word;
 !!!!! > 
-!!!!! 6a11,14
+!!!!! 5a14,18
 !!!!! >     exports io.vproxy.base.component.check;
 !!!!! >     exports io.vproxy.base.component.elgroup;
 !!!!! >     exports io.vproxy.base.component.elgroup.dummy;
+!!!!! >     exports io.vproxy.base.component.pool;
 !!!!! >     exports io.vproxy.base.component.svrgroup;
-!!!!! 7a16,17
+!!!!! 6a20,21
 !!!!! >     exports io.vproxy.base.connection.util;
 !!!!! >     exports io.vproxy.base.dhcp;
-!!!!! 9a20,32
-!!!!! >     exports io.vproxy.base.http;
+!!!!! 9a25,30
 !!!!! >     exports io.vproxy.base.http.connect;
 !!!!! >     exports io.vproxy.base.processor;
 !!!!! >     exports io.vproxy.base.processor.common;
 !!!!! >     exports io.vproxy.base.processor.dubbo;
 !!!!! >     exports io.vproxy.base.processor.http;
 !!!!! >     exports io.vproxy.base.processor.http1;
-!!!!! >     exports io.vproxy.base.processor.http1.builder;
-!!!!! >     exports io.vproxy.base.processor.http1.entity;
+!!!!! 11a33,36
 !!!!! >     exports io.vproxy.base.processor.httpbin;
 !!!!! >     exports io.vproxy.base.processor.httpbin.entity;
 !!!!! >     exports io.vproxy.base.processor.httpbin.frame;
 !!!!! >     exports io.vproxy.base.processor.httpbin.hpack;
-!!!!! 10a34,49
+!!!!! 12a38,53
 !!!!! >     exports io.vproxy.base.protocol;
 !!!!! >     exports io.vproxy.base.redis;
 !!!!! >     exports io.vproxy.base.redis.application;
@@ -47,33 +47,29 @@
 !!!!! >     exports io.vproxy.base.selector.wrap.streamed;
 !!!!! >     exports io.vproxy.base.selector.wrap.udp;
 !!!!! >     exports io.vproxy.base.socks;
-!!!!! 15a55
-!!!!! >     exports io.vproxy.base.util.codec;
-!!!!! 16a57
-!!!!! >     exports io.vproxy.base.util.crypto;
 !!!!! 19a61
-!!!!! >     exports io.vproxy.base.util.file;
-!!!!! 21a64
+!!!!! >     exports io.vproxy.base.util.crypto;
+!!!!! 25a68
 !!!!! >     exports io.vproxy.base.util.kt;
-!!!!! 29a73,74
+!!!!! 33a77,78
 !!!!! >     exports io.vproxy.base.util.ringbuffer.ssl;
 !!!!! >     exports io.vproxy.base.util.thread;
-!!!!! 35a81,84
+!!!!! 39a85,88
 !!!!! >     exports io.vproxy.fubuki;
 !!!!! >     exports io.vproxy.msquic.callback;
 !!!!! >     exports io.vproxy.msquic.wrap;
 !!!!! >     exports io.vproxy.msquic;
-!!!!! 36a86,90
+!!!!! 40a90,94
 !!!!! >     exports io.vproxy.vfd.abs;
 !!!!! >     exports io.vproxy.vfd.jdk;
 !!!!! >     exports io.vproxy.vfd.posix;
 !!!!! >     exports io.vproxy.vfd.windows;
 !!!!! >     exports io.vproxy.vmirror;
-!!!!! 37a92,94
+!!!!! 41a96,98
 !!!!! >     exports io.vproxy.vpacket.conntrack;
 !!!!! >     exports io.vproxy.vpacket.conntrack.tcp;
 !!!!! >     exports io.vproxy.vpacket.conntrack.udp;
-!!!!! 42a100,103
+!!!!! 46a104,107
 !!!!! >     exports io.vproxy.xdp;
 !!!!! > 
 !!!!! >     uses io.vproxy.vfd.FDs;
@@ -249,13 +245,37 @@
 ##### files are the same: /java/io/vproxy/vpacket/BSDLoopbackEncapsulation.java #####
 ##### files are the same: /java/io/vproxy/vpacket/PacketBytes.java #####
 ##### files are the same: /java/io/vproxy/base/connection/Protocol.java #####
+!!!!! diff /java/io/vproxy/base/util/ringbuffer/SimpleRingBufferPreserveEPos.java !!!!!
+!!!!! 4a5
+!!!!! > import java.lang.foreign.MemorySegment;
+!!!!! 15a17,22
+!!!!! >     public static SimpleRingBufferPreserveEPos wrap(MemorySegment memSeg) {
+!!!!! >         var buf = memSeg.asByteBuffer();
+!!!!! >         buf.limit(0).position(0);
+!!!!! >         return wrap(buf);
+!!!!! >     }
+!!!!! >
+!!!!! diff return code 1 !!!!!
+
 ##### files are the same: /java/io/vproxy/base/util/ringbuffer/AbstractRingBuffer.java #####
 ##### files are the same: /java/io/vproxy/base/util/ringbuffer/ByteBufferRingBuffer.java #####
 ##### files are the same: /java/io/vproxy/base/util/ringbuffer/AbstractUnwrapByteBufferRingBuffer.java #####
-##### files are the same: /java/io/vproxy/base/util/ringbuffer/SimpleRingBuffer.java #####
+!!!!! diff /java/io/vproxy/base/util/ringbuffer/SimpleRingBuffer.java !!!!!
+!!!!! 9a10
+!!!!! > import java.lang.foreign.MemorySegment;
+!!!!! 58a60,65
+!!!!! >     public static SimpleRingBuffer wrap(MemorySegment memSeg) {
+!!!!! >         var buf = memSeg.asByteBuffer();
+!!!!! >         buf.limit(0).position(0);
+!!!!! >         return wrap(buf);
+!!!!! >     }
+!!!!! >
+!!!!! diff return code 1 !!!!!
+
 ##### files are the same: /java/io/vproxy/base/util/ringbuffer/AbstractUnwrapRingBuffer.java #####
 ##### files are the same: /java/io/vproxy/base/util/ringbuffer/AbstractWrapRingBuffer.java #####
 ##### files are the same: /java/io/vproxy/base/util/ringbuffer/ProxyOutputRingBuffer.java #####
+##### files are the same: /java/io/vproxy/base/util/ringbuffer/ProxyOutputByteBufferRingBuffer.java #####
 ##### files are the same: /java/io/vproxy/base/util/ringbuffer/AbstractWrapByteBufferRingBuffer.java #####
 ##### files are the same: /java/io/vproxy/base/util/misc/IntMatcher.java #####
 ##### files are the same: /java/io/vproxy/base/util/NetworkV6.java #####
@@ -289,14 +309,6 @@
 ##### files are the same: /java/io/vproxy/base/util/objectpool/PrototypeObjectList.java #####
 ##### files are the same: /java/io/vproxy/base/util/objectpool/GarbageFree.java #####
 !!!!! diff /java/io/vproxy/base/util/file/MappedByteBufferLogger.java !!!!!
-!!!!! 35c35
-!!!!! <             throw new IOException(location + " is not a directory");
-!!!!! ---
-!!!!! >             throw new IOException(STR."\{location} is not a directory");
-!!!!! 119c119
-!!!!! <             Logger.error(LogType.FILE_ERROR, "failed creating new file for " + prefix + "..." + suffix);
-!!!!! ---
-!!!!! >             Logger.error(LogType.FILE_ERROR, STR."failed creating new file for \{prefix}...\{suffix}");
 !!!!! 201,217c201,204
 !!!!! <     public static final class WriteOrDropResult {
 !!!!! <         private final WriteOrDropResultType type;
@@ -396,6 +408,7 @@
 !!!!! >
 !!!!! diff return code 1 !!!!!
 
+##### files are the same: /java/io/vproxy/base/util/codec/AbstractParser.java #####
 ##### files are the same: /java/io/vproxy/base/util/IPType.java #####
 ##### files are the same: /java/io/vproxy/base/util/io/ArrayInputStream.java #####
 ##### files are the same: /java/io/vproxy/base/util/io/ArrayOutputStream.java #####
@@ -404,15 +417,15 @@
 !!!!! > import io.vproxy.base.util.thread.VProxyThread;
 !!!!! 9a11
 !!!!! > import io.vproxy.vfd.FDProvider;
-!!!!! 234c236
+!!!!! 239c241
 !!!!! <             (System.currentTimeMillis() / 60_000 // remove millis and seconds
 !!!!! ---
 !!!!! >             (FDProvider.get().currentTimeMillis() / 60_000 // remove millis and seconds
-!!!!! 641c643
+!!!!! 678c680
 !!!!! <         new Thread(() -> {
 !!!!! ---
 !!!!! >         VProxyThread.create(() -> {
-!!!!! 667c669
+!!!!! 704c706
 !!!!! <         new Thread(() -> {
 !!!!! ---
 !!!!! >         VProxyThread.create(() -> {
@@ -804,7 +817,10 @@
 
 ##### files are the same: /java/io/vproxy/base/util/MainUtils.java #####
 ##### files are the same: /java/io/vproxy/base/util/RingBuffer.java #####
+##### files are the same: /java/io/vproxy/base/util/nio/SimpleByteArrayChannel.java #####
+##### files are the same: /java/io/vproxy/base/util/nio/AbstractByteArrayChannel.java #####
 ##### files are the same: /java/io/vproxy/base/util/nio/ByteArrayChannel.java #####
+##### files are the same: /java/io/vproxy/base/util/nio/ByteBufferChannel.java #####
 ##### files are the same: /java/io/vproxy/base/util/log/LogRecord.java #####
 ##### files are the same: /java/io/vproxy/base/util/log/LogHandler.java #####
 ##### files are the same: /java/io/vproxy/base/util/log/LogLevel.java #####
@@ -856,6 +872,51 @@
 ##### files are the same: /java/io/vproxy/base/util/anno/Comment.java #####
 ##### files are the same: /java/io/vproxy/base/util/anno/Blocking.java #####
 ##### files are the same: /java/io/vproxy/base/util/anno/Nullable.java #####
+##### files are the same: /java/io/vproxy/base/processor/http1/entity/Response.java #####
+##### files are the same: /java/io/vproxy/base/processor/http1/entity/HttpEntity.java #####
+##### files are the same: /java/io/vproxy/base/processor/http1/entity/Chunk.java #####
+##### files are the same: /java/io/vproxy/base/processor/http1/entity/Header.java #####
+##### files are the same: /java/io/vproxy/base/processor/http1/entity/Request.java #####
+##### files are the same: /java/io/vproxy/base/processor/http1/builder/HttpEntityBuilder.java #####
+##### files are the same: /java/io/vproxy/base/processor/http1/builder/HeaderBuilder.java #####
+##### files are the same: /java/io/vproxy/base/processor/http1/builder/RequestBuilder.java #####
+##### files are the same: /java/io/vproxy/base/processor/http1/builder/ResponseBuilder.java #####
+##### files are the same: /java/io/vproxy/base/processor/http1/builder/ChunkBuilder.java #####
+##### files are the same: /java/io/vproxy/base/http/IHttpHeader.java #####
+##### files are the same: /java/io/vproxy/base/http/HttpReqParser.java #####
+##### files are the same: /java/io/vproxy/base/http/HttpRespParser.java #####
+!!!!! diff /java/io/vproxy/base/http/HttpParserHelper.java !!!!!
+!!!!! 166,174c166,174
+!!!!! <         switch (state) {
+!!!!! <             case STATE_END_ALL_HEADERS: return state9Trans();
+!!!!! <             case STATE_BODY: return end();
+!!!!! <             case STATE_CHUNK_CONTENT: return 16;
+!!!!! <             case STATE_END_CHUNK: return 11;
+!!!!! <             case STATE_END_ALL_CHUNKS: return 14;
+!!!!! <             case STATE_END_ALL_TRAILERS: return state25Trans();
+!!!!! <             default: throw new Exception("unknown state for method `nextState`: " + state);
+!!!!! <         }
+!!!!! ---
+!!!!! >         return switch (state) {
+!!!!! >             case STATE_END_ALL_HEADERS -> state9Trans();
+!!!!! >             case STATE_BODY -> end();
+!!!!! >             case STATE_CHUNK_CONTENT -> 16;
+!!!!! >             case STATE_END_CHUNK -> 11;
+!!!!! >             case STATE_END_ALL_CHUNKS -> 14;
+!!!!! >             case STATE_END_ALL_TRAILERS -> state25Trans();
+!!!!! >             default -> throw new Exception("unknown state for method `nextState`: " + state);
+!!!!! >         };
+!!!!! 232c232
+!!!!! <             if (b != ' ' || header.value.length() != 0) { // leading spaces of the value are ignored
+!!!!! ---
+!!!!! >             if (b != ' ' || !header.value.isEmpty()) { // leading spaces of the value are ignored
+!!!!! 499c499
+!!!!! <             if (b != ' ' || trailer.value.length() != 0) { // leading spaces are ignored
+!!!!! ---
+!!!!! >             if (b != ' ' || !trailer.value.isEmpty()) { // leading spaces are ignored
+!!!!! diff return code 1 !!!!!
+
+##### files are the same: /java/io/vproxy/base/http/IHttpParser.java #####
 !!!!! diff /java/io/vproxy/base/GlobalInspection.java !!!!!
 !!!!! 6a7,9
 !!!!! > import io.vproxy.base.selector.SelectorEventLoop;
@@ -864,36 +925,37 @@
 !!!!! 8a12,13
 !!!!! > import io.vproxy.base.util.callback.Callback;
 !!!!! > import io.vproxy.base.util.callback.RunOnLoopCallback;
-!!!!! 9a15,26
+!!!!! 9a15,27
 !!!!! > import io.vproxy.base.util.coll.ConcurrentHashSet;
 !!!!! > import io.vproxy.base.util.display.TR;
 !!!!! > import io.vproxy.base.util.display.TableBuilder;
 !!!!! > import io.vproxy.base.util.display.TreeBuilder;
 !!!!! > import io.vproxy.base.util.exception.NoException;
 !!!!! > import io.vproxy.base.util.thread.VProxyThread;
+!!!!! > import io.vproxy.pni.graal.GraalUtils;
 !!!!! > import vjson.simple.SimpleString;
 !!!!! > import io.vproxy.vfd.FD;
 !!!!! > import io.vproxy.vfd.NetworkFD;
 !!!!! > import io.vproxy.vfd.ServerSocketFD;
 !!!!! > import io.vproxy.vfd.SockAddr;
 !!!!! > import io.vproxy.vfd.posix.PosixFD;
-!!!!! 11,13c28
+!!!!! 11,13c29
 !!!!! < import java.util.Collections;
 !!!!! < import java.util.HashMap;
 !!!!! < import java.util.Map;
 !!!!! ---
 !!!!! > import java.util.*;
-!!!!! 14a30
+!!!!! 14a31
 !!!!! > import java.util.function.Consumer;
-!!!!! 29a46,48
+!!!!! 29a47,49
 !!!!! >     private final Counter sslUnwrapTaskCount;
 !!!!! >     private final Counter sslUnwrapTaskTimeMillisTotal;
 !!!!! >     private final Gauge threadNumberCurrent;
-!!!!! 30a50,52
+!!!!! 30a51,53
 !!!!! >     private final ConcurrentHashSet<SelectorEventLoop> runningLoops = new ConcurrentHashSet<>();
 !!!!! >     private final ConcurrentHashSet<VProxyThread> runningThreads = new ConcurrentHashSet<>();
 !!!!! > 
-!!!!! 58a81,92
+!!!!! 58a82,93
 !!!!! >         sslUnwrapTaskCount = new Counter("ssl_unwrap_task_count", new AppendableMap<>()
 !!!!! >             .appendAll(extraLabels));
 !!!!! >         metrics.add(sslUnwrapTaskCount);
@@ -906,7 +968,7 @@
 !!!!! >             .appendAll(extraLabels));
 !!!!! >         metrics.add(threadNumberCurrent);
 !!!!! > 
-!!!!! 123a158,184
+!!!!! 123a159,186
 !!!!! >     public void sslUnwrapTask(long costMillis) {
 !!!!! >         sslUnwrapTaskCount.incr(1);
 !!!!! >         sslUnwrapTaskTimeMillisTotal.incr(costMillis);
@@ -914,6 +976,7 @@
 !!!!! > 
 !!!!! >     public Runnable wrapThread(Runnable r) {
 !!!!! >         return () -> {
+!!!!! >             GraalUtils.setThread();
 !!!!! >             VProxyThread vt = (VProxyThread) Thread.currentThread();
 !!!!! >             runningThreads.add(vt);
 !!!!! >             threadNumberCurrent.incr(1);
@@ -934,7 +997,7 @@
 !!!!! >         runningLoops.remove(loop);
 !!!!! >     }
 !!!!! > 
-!!!!! 126a188,387
+!!!!! 126a190,389
 !!!!! > 
 !!!!! >     public String getStackTraces() {
 !!!!! >         var threads = new HashSet<>(runningThreads);
@@ -1310,6 +1373,34 @@
 !!!!! >         }
 !!!!! diff return code 1 !!!!!
 
+##### commons missing: /generated-graal/io/vproxy/xdp/XDPNative.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/posix/PosixNative.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/posix/AEFiredEvent.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/posix/AEFiredExtra.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/posix/UDPRecvResultIPv6ST.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/posix/UDPRecvResultIPv4ST.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/posix/SocketAddressUDSST.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/posix/SocketAddressUnion.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/posix/SocketAddressIPv4ST.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/posix/SocketAddressIPv6ST.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/posix/TapInfoST.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/windows/OverlappedEntry.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/windows/SockaddrStorage.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/windows/VIOContext.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/windows/Overlapped.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/windows/WindowsNative.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/windows/SOCKET.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/windows/HANDLE.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/windows/WSABUF.java #####
+##### commons missing: /generated-graal/io/vproxy/vfd/windows/IOCP.java #####
+##### commons missing: /generated-graal/io/vproxy/msquic/CxPlatProcessEventLocals.java #####
+##### commons missing: /generated-graal/io/vproxy/msquic/MsQuicMod2.java #####
+##### commons missing: /generated-graal/io/vproxy/msquic/CxPlatExecutionState.java #####
+##### commons missing: /generated-graal/io/vproxy/fubuki/FubukiStartOptions.java #####
+##### commons missing: /generated-graal/io/vproxy/fubuki/FubukiUpcall.java #####
+##### commons missing: /generated-graal/io/vproxy/fubuki/FubukiFunc.java #####
+##### commons missing: /generated-graal/io/vproxy/fubuki/FubukiHandle.java #####
+##### commons missing: /generated-graal/io/vproxy/base/NativeAccessGraalFeature.java #####
 ##### commons missing: /java/io/vproxy/xdp/BPFMap.java #####
 ##### commons missing: /java/io/vproxy/xdp/XDPSocket.java #####
 ##### commons missing: /java/io/vproxy/xdp/SharedUMem.java #####
@@ -1326,6 +1417,7 @@
 ##### commons missing: /java/io/vproxy/vfd/posix/PosixNetworkFD.java #####
 ##### commons missing: /java/io/vproxy/vfd/posix/PosixDatagramFD.java #####
 ##### commons missing: /java/io/vproxy/vfd/posix/PosixServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/vfd/posix/SelectedEntryPrototypeObjectList.java #####
 ##### commons missing: /java/io/vproxy/vfd/posix/PosixTapDatagramFD.java #####
 ##### commons missing: /java/io/vproxy/vfd/posix/SocketAddressIPv6.java #####
 ##### commons missing: /java/io/vproxy/vfd/posix/PosixSocketFD.java #####
@@ -1369,10 +1461,22 @@
 ##### commons missing: /java/io/vproxy/vfd/SocketOptions.java #####
 ##### commons missing: /java/io/vproxy/vfd/TraceInvocationHandler.java #####
 ##### commons missing: /java/io/vproxy/vfd/NoSockAddr.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/WindowsDatagramFD.java #####
 ##### commons missing: /java/io/vproxy/vfd/windows/WindowsTapDatagramFD.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/WindowsSocketFD.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/IOCPSelector.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/WinSocket.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/WindowsFD.java #####
 ##### commons missing: /java/io/vproxy/vfd/windows/Windows.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/IOType.java #####
 ##### commons missing: /java/io/vproxy/vfd/windows/WindowsFDs.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/WindowsInetNetworkFD.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/UnderlyingIOCP.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/WindowsNetworkFD.java #####
 ##### commons missing: /java/io/vproxy/vfd/windows/GeneralWindows.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/IOCPUtils.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/WindowsServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/vfd/windows/WinIOCP.java #####
 ##### commons missing: /java/io/vproxy/vfd/SelectedEntry.java #####
 ##### commons missing: /java/io/vproxy/vfd/UnixDomainSocketAddress.java #####
 ##### commons missing: /java/io/vproxy/vfd/FDSelector.java #####
@@ -1404,7 +1508,7 @@
 ##### commons missing: /java/io/vproxy/vmirror/MirrorDataFactory.java #####
 ##### commons missing: /java/io/vproxy/vmirror/FilterConfig.java #####
 ##### commons missing: /java/io/vproxy/fubuki/Fubuki.java #####
-##### commons missing: /java/io/vproxy/fubuki/FubukiUpcall.java #####
+##### commons missing: /java/io/vproxy/fubuki/FubukiUpcallImpl.java #####
 ##### commons missing: /java/io/vproxy/fubuki/FubukiCallback.java #####
 ##### commons missing: /java/io/vproxy/base/selector/Handler.java #####
 ##### commons missing: /java/io/vproxy/base/selector/SelectorEventLoop.java #####
@@ -1497,7 +1601,6 @@
 ##### commons missing: /java/io/vproxy/base/util/crypto/BlockCipherKey.java #####
 ##### commons missing: /java/io/vproxy/base/util/file/FileWatcherHandler.java #####
 ##### commons missing: /java/io/vproxy/base/util/file/FileWatcher.java #####
-##### commons missing: /java/io/vproxy/base/util/codec/AbstractParser.java #####
 ##### commons missing: /java/io/vproxy/base/util/codec/AbstractDecoder.java #####
 ##### commons missing: /java/io/vproxy/base/util/Timer.java #####
 ##### commons missing: /java/io/vproxy/base/util/kt/KT.java #####
@@ -1527,16 +1630,8 @@
 ##### commons missing: /java/io/vproxy/base/redis/RESPHandler.java #####
 ##### commons missing: /java/io/vproxy/base/redis/package-info.java #####
 ##### commons missing: /java/io/vproxy/base/processor/http1/HttpContext.java #####
-##### commons missing: /java/io/vproxy/base/processor/http1/entity/Response.java #####
-##### commons missing: /java/io/vproxy/base/processor/http1/entity/Chunk.java #####
-##### commons missing: /java/io/vproxy/base/processor/http1/entity/Header.java #####
-##### commons missing: /java/io/vproxy/base/processor/http1/entity/Request.java #####
 ##### commons missing: /java/io/vproxy/base/processor/http1/HttpProcessor.java #####
 ##### commons missing: /java/io/vproxy/base/processor/http1/HttpSubContext.java #####
-##### commons missing: /java/io/vproxy/base/processor/http1/builder/HeaderBuilder.java #####
-##### commons missing: /java/io/vproxy/base/processor/http1/builder/RequestBuilder.java #####
-##### commons missing: /java/io/vproxy/base/processor/http1/builder/ResponseBuilder.java #####
-##### commons missing: /java/io/vproxy/base/processor/http1/builder/ChunkBuilder.java #####
 ##### commons missing: /java/io/vproxy/base/processor/DummyConnectionDelegate.java #####
 ##### commons missing: /java/io/vproxy/base/processor/ProcessorRegistry.java #####
 ##### commons missing: /java/io/vproxy/base/processor/ProcessorProvider.java #####
@@ -1601,6 +1696,12 @@
 ##### commons missing: /java/io/vproxy/base/component/check/AnnotatedHcConfig.java #####
 ##### commons missing: /java/io/vproxy/base/component/check/ConnectClient.java #####
 ##### commons missing: /java/io/vproxy/base/component/check/HealthCheckConfig.java #####
+##### commons missing: /java/io/vproxy/base/component/pool/ConnectionPool.java #####
+##### commons missing: /java/io/vproxy/base/component/pool/ConnectionPoolParams.java #####
+##### commons missing: /java/io/vproxy/base/component/pool/ConnectionPoolHandler.java #####
+##### commons missing: /java/io/vproxy/base/component/pool/SimpleConnectionPoolHandler.java #####
+##### commons missing: /java/io/vproxy/base/component/pool/PoolCallback.java #####
+##### commons missing: /java/io/vproxy/base/component/pool/ConnectionPoolHandlerProvider.java #####
 ##### commons missing: /java/io/vproxy/base/protocol/ProtocolServerHandler.java #####
 ##### commons missing: /java/io/vproxy/base/protocol/ProtocolServerConfig.java #####
 ##### commons missing: /java/io/vproxy/base/protocol/ProtocolConnectionHandler.java #####
@@ -1609,10 +1710,8 @@
 ##### commons missing: /java/io/vproxy/base/protocol/ProtocolHandlerContext.java #####
 ##### commons missing: /java/io/vproxy/base/GlobalEvents.java #####
 ##### commons missing: /java/io/vproxy/base/http/Http2Decoder.java #####
-##### commons missing: /java/io/vproxy/base/http/HttpReqParser.java #####
 ##### commons missing: /java/io/vproxy/base/http/HttpContext.java #####
 ##### commons missing: /java/io/vproxy/base/http/HttpProtocolHandler.java #####
-##### commons missing: /java/io/vproxy/base/http/HttpRespParser.java #####
 ##### commons missing: /java/io/vproxy/base/http/connect/HttpConnectContext.java #####
 ##### commons missing: /java/io/vproxy/base/http/connect/HttpConnectProtocolHandler.java #####
 ##### commons missing: /java/io/vproxy/base/dhcp/DHCPClientHelper.java #####

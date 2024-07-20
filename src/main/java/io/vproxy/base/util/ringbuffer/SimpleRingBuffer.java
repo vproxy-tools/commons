@@ -21,7 +21,7 @@ import java.util.Set;
  * [---------sPos---------ePos------------]
  * then
  * [  free space  ]->                      ->
- * [------------ePos--------------------sPos
+ * [------------sPos--------------------ePos
  * then
  * .........->[   free space    ]->
  * [------ePos----------------sPos--------]
@@ -33,9 +33,9 @@ public class SimpleRingBuffer implements RingBuffer, ByteBufferRingBuffer {
     private final boolean isDirect;
     private /*may change after defragment*/ ByteBufferEx buffer;
     private int ePos; // end pos
-    private int sPos; // start pos
+    protected int sPos; // start pos
     private final int cap;
-    private boolean ePosIsAfterSPos = true; // true then end is limit, otherwise start is limit
+    protected boolean ePosIsAfterSPos = true;
 
     private boolean notFirstOperator = false;
     private boolean operating = false;
@@ -56,7 +56,7 @@ public class SimpleRingBuffer implements RingBuffer, ByteBufferRingBuffer {
         return new SimpleRingBuffer(false, new ByteBufferEx(b), b.position(), b.limit());
     }
 
-    private SimpleRingBuffer(boolean isDirect, ByteBufferEx buffer, int sPos, int ePos) {
+    protected SimpleRingBuffer(boolean isDirect, ByteBufferEx buffer, int sPos, int ePos) {
         this.isDirect = isDirect;
         this.buffer = buffer;
         this.cap = buffer.capacity();
@@ -98,7 +98,7 @@ public class SimpleRingBuffer implements RingBuffer, ByteBufferRingBuffer {
         return operateOnByteBufferStoreIn(b -> channel.read(b.realBuffer()) != -1);
     }
 
-    private void resetCursors() {
+    protected void resetCursors() {
         assert Logger.lowLevelNetDebug("reset cursors");
         sPos = 0;
         ePos = 0;
@@ -154,7 +154,7 @@ public class SimpleRingBuffer implements RingBuffer, ByteBufferRingBuffer {
     @Override
     public String toString() {
         byte[] bytes = getBytes();
-        return new String(bytes, 0, bytes.length, StandardCharsets.UTF_8);
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     @Override
@@ -477,15 +477,15 @@ public class SimpleRingBuffer implements RingBuffer, ByteBufferRingBuffer {
         return buffer;
     }
 
-    int getSPos() {
+    public int getSPos() {
         return sPos;
     }
 
-    int getEPos() {
+    public int getEPos() {
         return ePos;
     }
 
-    boolean getEPosIsAfterSPos() {
+    public boolean getEPosIsAfterSPos() {
         return ePosIsAfterSPos;
     }
 
