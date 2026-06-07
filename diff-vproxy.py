@@ -15,7 +15,7 @@ if not VPROXY_DIR.endswith('/'):
 BASE_DIR = 'src/main/'
 
 def diff(a, b, n):
-    p = subprocess.run(['diff', a, b], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    p = subprocess.run(['git', 'diff', a, b], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     stdout = p.stdout.strip()
     lines = p.stdout.strip().split('\n')
     if len(stdout) == 0 and p.returncode == 0:
@@ -23,6 +23,11 @@ def diff(a, b, n):
     else:
         print ('!!!!! diff ' + n + ' !!!!!')
         for line in lines:
+            if line.startswith('diff --git ') or \
+               line.startswith('--- a/') or line.startswith('--- b/') or \
+               line.startswith('+++ a/') or line.startswith('+++ b/') or \
+               line.startswith('index '):
+                continue
             print ('!!!!! ' + line)
         print ('!!!!! diff return code ' + str(p.returncode) + ' !!!!!')
         print ()
@@ -36,7 +41,7 @@ def diff_file(base, n):
         diff(a, b, n)
 
 def handle(base, name):
-    ls = os.listdir(base + name)
+    ls = sorted(os.listdir(base + name))
     for n in ls:
         if n == 'generated':
             continue
@@ -48,7 +53,7 @@ def handle(base, name):
 handle('./' + BASE_DIR, '')
 
 def handle_vproxy(base, name):
-    ls = os.listdir(VPROXY_DIR + 'base/' + BASE_DIR + name)
+    ls = sorted(os.listdir(VPROXY_DIR + 'base/' + BASE_DIR + name))
     for n in ls:
         if n == 'generated':
             continue
