@@ -29,6 +29,10 @@ public interface RingBuffer {
         }
     }
 
+    default int storeBytesFrom(ByteArray array) {
+        return storeBytesFrom(array.toFullChannel());
+    }
+
     int storeBytesFrom(ReadableByteStream channel) throws IOException;
 
     default int storeBytesFrom(ByteBuffer buf) {
@@ -50,11 +54,19 @@ public interface RingBuffer {
         }
     }
 
+    default int writeTo(ByteArray array) {
+        return writeTo(array.toEmptyChannel());
+    }
+
     default int writeTo(WritableByteStream channel) throws IOException {
         return writeTo(channel, Integer.MAX_VALUE);
     }
 
     int writeTo(WritableByteStream channel, int maxBytesToWrite) throws IOException;
+
+    default int writeTo(RingBuffer buffer) {
+        return writeTo(buffer, Integer.MAX_VALUE);
+    }
 
     default int writeTo(RingBuffer buffer, int maxBytesToWrite) {
         // NOTE: the default implementation of this method is general but with low efficiency

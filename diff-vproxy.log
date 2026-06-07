@@ -51,26 +51,27 @@
 !!!!! >     exports io.vproxy.base.util.crypto;
 !!!!! 25a68
 !!!!! >     exports io.vproxy.base.util.kt;
-!!!!! 33a77,78
+!!!!! 34a78,79
 !!!!! >     exports io.vproxy.base.util.ringbuffer.ssl;
 !!!!! >     exports io.vproxy.base.util.thread;
-!!!!! 39a85,88
+!!!!! 40a86,89
 !!!!! >     exports io.vproxy.fubuki;
 !!!!! >     exports io.vproxy.msquic.callback;
 !!!!! >     exports io.vproxy.msquic.wrap;
 !!!!! >     exports io.vproxy.msquic;
-!!!!! 40a90,94
+!!!!! 41a91,95
 !!!!! >     exports io.vproxy.vfd.abs;
 !!!!! >     exports io.vproxy.vfd.jdk;
 !!!!! >     exports io.vproxy.vfd.posix;
 !!!!! >     exports io.vproxy.vfd.windows;
 !!!!! >     exports io.vproxy.vmirror;
-!!!!! 41a96,98
+!!!!! 42a97,99
 !!!!! >     exports io.vproxy.vpacket.conntrack;
 !!!!! >     exports io.vproxy.vpacket.conntrack.tcp;
 !!!!! >     exports io.vproxy.vpacket.conntrack.udp;
-!!!!! 46a104,107
+!!!!! 47a105,109
 !!!!! >     exports io.vproxy.xdp;
+!!!!! >     exports io.vproxy.vpxdp;
 !!!!! > 
 !!!!! >     uses io.vproxy.vfd.FDs;
 !!!!! >     uses io.vproxy.base.processor.ProcessorRegistry;
@@ -85,13 +86,7 @@
 ##### files are the same: /java/io/vproxy/commons/graph/GraphNode.java #####
 ##### files are the same: /java/io/vproxy/commons/graph/Dijkstra.java #####
 !!!!! diff /java/io/vproxy/vfd/IP.java !!!!!
-!!!!! 189c189
-!!!!! <         if (!(o instanceof IP))
-!!!!! ---
-!!!!! >         if (!(o instanceof IP that))
-!!!!! 191d190
-!!!!! <         var that = (IP) o;
-!!!!! 688,711c687,696
+!!!!! 687,710c687,696
 !!!!! <                 case (byte) 254:
 !!!!! <                     res += 7;
 !!!!! <                     break;
@@ -127,7 +122,7 @@
 !!!!! >                 case 0 -> {
 !!!!! >                 }
 !!!!! >                 default -> {
-!!!!! 712a698
+!!!!! 711a698
 !!!!! >                 }
 !!!!! diff return code 1 !!!!!
 
@@ -305,11 +300,19 @@
 !!!!! diff return code 1 !!!!!
 
 ##### files are the same: /java/io/vproxy/base/util/objectpool/CursorList.java #####
-##### files are the same: /java/io/vproxy/base/util/objectpool/ConcurrentObjectPool.java #####
+!!!!! diff /java/io/vproxy/base/util/objectpool/ConcurrentObjectPool.java !!!!!
+!!!!! 4a5
+!!!!! > import io.vproxy.base.util.thread.VProxyThread;
+!!!!! 54c55
+!!!!! <         var tid = Thread.currentThread().getId();
+!!!!! ---
+!!!!! >         var tid = VProxyThread.current().threadId;
+!!!!! diff return code 1 !!!!!
+
 ##### files are the same: /java/io/vproxy/base/util/objectpool/PrototypeObjectList.java #####
 ##### files are the same: /java/io/vproxy/base/util/objectpool/GarbageFree.java #####
 !!!!! diff /java/io/vproxy/base/util/file/MappedByteBufferLogger.java !!!!!
-!!!!! 201,217c201,204
+!!!!! 210,226c210,213
 !!!!! <     public static final class WriteOrDropResult {
 !!!!! <         private final WriteOrDropResultType type;
 !!!!! <         private final Promise<Void> writablePromise;
@@ -345,17 +348,25 @@
 !!!!! 7a10,11
 !!!!! > import java.io.IOException;
 !!!!! > import java.nio.ByteBuffer;
-!!!!! 17a22
+!!!!! 14a19
+!!!!! >     public static final boolean tcpStackDebugOn;
+!!!!! 17a23
 !!!!! >     private static DatagramFD logChannel;
-!!!!! 110c115
+!!!!! 30a37,41
+!!!!! >             String tcpStackDebug = Utils.getSystemProperty("tcp_stack_debug");
+!!!!! >             tcpStackDebugOn = "on".equals(tcpStackDebug);
+!!!!! >         }
+!!!!! > 
+!!!!! >         {
+!!!!! 110c121
 !!!!! <         return System.currentTimeMillis();
 !!!!! ---
 !!!!! >         return FDProvider.get().currentTimeMillis();
-!!!!! 123c128
+!!!!! 123c134
 !!!!! <             String debugInfo = null;
 !!!!! ---
 !!!!! >             String debugInfo = VProxyThread.current().debugInfo;
-!!!!! 215a221,265
+!!!!! 215a227,271
 !!!!! >     }
 !!!!! > 
 !!!!! >     public static void probe(String msg) {
@@ -401,7 +412,7 @@
 !!!!! >             return getLogChannel();
 !!!!! >         }
 !!!!! >         return logChannel;
-!!!!! 217a268,271
+!!!!! 217a274,277
 !!!!! >     private static IPPort getLogAddress() {
 !!!!! >         return new IPPort(IP.from(new byte[]{127, 0, 0, 1}), 23456);
 !!!!! >     }
@@ -412,6 +423,7 @@
 ##### files are the same: /java/io/vproxy/base/util/IPType.java #####
 ##### files are the same: /java/io/vproxy/base/util/io/ArrayInputStream.java #####
 ##### files are the same: /java/io/vproxy/base/util/io/ArrayOutputStream.java #####
+##### files are the same: /java/io/vproxy/base/util/lock/ReadWriteSpinLock.java #####
 !!!!! diff /java/io/vproxy/base/util/Utils.java !!!!!
 !!!!! 8a9
 !!!!! > import io.vproxy.base.util.thread.VProxyThread;
@@ -421,11 +433,11 @@
 !!!!! <             (System.currentTimeMillis() / 60_000 // remove millis and seconds
 !!!!! ---
 !!!!! >             (FDProvider.get().currentTimeMillis() / 60_000 // remove millis and seconds
-!!!!! 678c680
+!!!!! 691c693
 !!!!! <         new Thread(() -> {
 !!!!! ---
 !!!!! >         VProxyThread.create(() -> {
-!!!!! 704c706
+!!!!! 717c719
 !!!!! <         new Thread(() -> {
 !!!!! ---
 !!!!! >         VProxyThread.create(() -> {
@@ -841,11 +853,18 @@
 !!!!! diff /java/io/vproxy/base/util/ByteArray.java !!!!!
 !!!!! 6a7
 !!!!! > import java.lang.foreign.MemorySegment;
-!!!!! 59a61,64
+!!!!! 42,44c43,44
+!!!!! <             byte[] array = Utils.allocateByteArray(len);
+!!!!! <             buf.get(array);
+!!!!! <             return from(array);
+!!!!! ---
+!!!!! >             var seg = MemorySegment.ofBuffer(buf);
+!!!!! >             return new MemorySegmentByteArray(seg);
+!!!!! 57a58,61
+!!!!! >     }
+!!!!! > 
 !!!!! >     static ByteArray from(MemorySegment seg) {
 !!!!! >         return new MemorySegmentByteArray(seg);
-!!!!! >     }
-!!!!! >
 !!!!! diff return code 1 !!!!!
 
 ##### files are the same: /java/io/vproxy/base/util/bitwise/BitwiseGeneralMatcher.java #####
@@ -856,9 +875,8 @@
 ##### files are the same: /java/io/vproxy/base/util/bitwise/BitwiseIPv4Matcher.java #####
 ##### files are the same: /java/io/vproxy/base/util/bitwise/BitwiseMacAddressMatcher.java #####
 ##### files are the same: /java/io/vproxy/base/util/Lock.java #####
+##### files are the same: /java/io/vproxy/base/util/exception/InUseException.java #####
 ##### files are the same: /java/io/vproxy/base/util/exception/NoException.java #####
-##### files are the same: /java/io/vproxy/base/util/exception/ConflictException.java #####
-##### files are the same: /java/io/vproxy/base/util/exception/StillRunningException.java #####
 ##### files are the same: /java/io/vproxy/base/util/exception/PreconditionUnsatisfiedException.java #####
 ##### files are the same: /java/io/vproxy/base/util/exception/AlreadyExistException.java #####
 ##### files are the same: /java/io/vproxy/base/util/exception/NotFoundException.java #####
@@ -868,6 +886,7 @@
 ##### files are the same: /java/io/vproxy/base/util/functional/BooleanSupplierEx.java #####
 ##### files are the same: /java/io/vproxy/base/util/functional/ConsumerEx.java #####
 ##### files are the same: /java/io/vproxy/base/util/functional/FunctionEx.java #####
+##### files are the same: /java/io/vproxy/base/util/functional/BooleanFunction.java #####
 ##### files are the same: /java/io/vproxy/base/util/anno/ThreadSafe.java #####
 ##### files are the same: /java/io/vproxy/base/util/anno/Comment.java #####
 ##### files are the same: /java/io/vproxy/base/util/anno/Blocking.java #####
@@ -1212,7 +1231,7 @@
 !!!!! > import java.util.Set;
 !!!!! > import java.util.function.Predicate;
 !!!!! > import java.util.stream.Collectors;
-!!!!! 7a16,60
+!!!!! 7a16,63
 !!!!! >     // we only read/assign this value, not increase
 !!!!! >     public static long currentTimestamp = System.currentTimeMillis();
 !!!!! >     // initially we use the java impl because the FDProvider is not initiated yet
@@ -1224,6 +1243,9 @@
 !!!!! >     // the default tcpTimeout is the same as LVS
 !!!!! >     // set it smaller if your environment have a smaller tcp session ttl
 !!!!! >     public static final int tcpTimeout = 15 * 60_000;
+!!!!! > 
+!!!!! >     // the default tcpConnectTimeout is 15s
+!!!!! >     public static final int tcpConnectTimeout = 15 * 1000;
 !!!!! > 
 !!!!! >     // the maximum expected size of a udp packet
 !!!!! >     public static final int udpMtu = 65536;
@@ -1258,7 +1280,7 @@
 !!!!! >     // null for the default path
 !!!!! >     public static String autoSaveFilePath = null;
 !!!!! > 
-!!!!! 40a94,169
+!!!!! 40a97,172
 !!!!! > 
 !!!!! >     // -Deploy=xxx
 !!!!! >     public static final String appClass;
@@ -1373,7 +1395,6 @@
 !!!!! >         }
 !!!!! diff return code 1 !!!!!
 
-##### commons missing: /generated-graal/io/vproxy/xdp/XDPNative.java #####
 ##### commons missing: /generated-graal/io/vproxy/vfd/posix/PosixNative.java #####
 ##### commons missing: /generated-graal/io/vproxy/vfd/posix/AEFiredEvent.java #####
 ##### commons missing: /generated-graal/io/vproxy/vfd/posix/AEFiredExtra.java #####
@@ -1401,14 +1422,13 @@
 ##### commons missing: /generated-graal/io/vproxy/fubuki/FubukiFunc.java #####
 ##### commons missing: /generated-graal/io/vproxy/fubuki/FubukiHandle.java #####
 ##### commons missing: /generated-graal/io/vproxy/base/NativeAccessGraalFeature.java #####
+##### commons missing: /java/io/vproxy/xdp/Prebuilt.java #####
 ##### commons missing: /java/io/vproxy/xdp/BPFMap.java #####
 ##### commons missing: /java/io/vproxy/xdp/XDPSocket.java #####
-##### commons missing: /java/io/vproxy/xdp/SharedUMem.java #####
 ##### commons missing: /java/io/vproxy/xdp/NativeXDP.java #####
+##### commons missing: /java/io/vproxy/xdp/SharedBPFMapHolder.java #####
 ##### commons missing: /java/io/vproxy/xdp/BPFMode.java #####
 ##### commons missing: /java/io/vproxy/xdp/UMem.java #####
-##### commons missing: /java/io/vproxy/xdp/ChunkPrototypeObjectList.java #####
-##### commons missing: /java/io/vproxy/xdp/Chunk.java #####
 ##### commons missing: /java/io/vproxy/xdp/BPFObject.java #####
 ##### commons missing: /java/io/vproxy/vfd/FDsWithTap.java #####
 ##### commons missing: /java/io/vproxy/vfd/FDsWithCoreAffinity.java #####
@@ -1491,11 +1511,13 @@
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/udp/UdpUtils.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpUtils.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/Segment.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/SAckTuple.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpState.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/ConnectionHandler.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/ProxyProtocolHelper.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpTimeout.kt #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpEntry.java #####
+##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/RetransContext.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpNat.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpListenEntry.java #####
 ##### commons missing: /java/io/vproxy/vpacket/conntrack/tcp/TcpListenHandler.java #####
@@ -1516,8 +1538,10 @@
 ##### commons missing: /java/io/vproxy/base/selector/PeriodicEvent.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/AbstractDelegateServerSocketFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/StreamedServerSocketFD.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/StreamedFDHandlerFactory.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/MethodForStreamedFD.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/StreamedFDHandler.java #####
+##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/StreamConnectionStateCallback.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/MethodForFDs.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/StreamedArqUDPServerFDs.java #####
 ##### commons missing: /java/io/vproxy/base/selector/wrap/streamed/MethodForImplementation.java #####

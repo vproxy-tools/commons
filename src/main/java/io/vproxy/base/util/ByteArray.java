@@ -127,6 +127,10 @@ public interface ByteArray extends ToByteArray {
         return ByteArrayChannel.fromFull(this);
     }
 
+    default ByteArrayChannel toEmptyChannel() {
+        return ByteArrayChannel.fromEmpty(this);
+    }
+
     default int uint24(int offset) {
         return uint8(offset) << 16 | uint8(offset + 1) << 8 | uint8(offset + 2);
     }

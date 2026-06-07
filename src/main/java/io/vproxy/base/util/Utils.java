@@ -407,7 +407,7 @@ public class Utils {
     }
 
     private static byte parseHexChar(char c) {
-        if ((c < '0' || c > '9') && (c < 'a' || c > 'z') && (c < 'A' || c > 'Z')) {
+        if ((c < '0' || c > '9') && (c < 'a' || c > 'f') && (c < 'A' || c > 'F')) {
             throw new IllegalArgumentException("char `" + c + "' cannot be hex");
         }
         //noinspection ConstantConditions
@@ -415,7 +415,7 @@ public class Utils {
             return (byte) (c - '0');
         }
         //noinspection ConstantConditions
-        if ('a' <= c && c <= 'z') {
+        if ('a' <= c && c <= 'f') {
             return (byte) (c - 'a' + 10);
         }
         return (byte) (c - 'A' + 10);
@@ -466,6 +466,17 @@ public class Utils {
             }
         }
         return true;
+    }
+
+    public static int minPow2GreaterThan(int n) {
+        n -= 1;
+        n |= n >>> 1;
+        n |= n >>> 2;
+        n |= n >>> 4;
+        n |= n >>> 8;
+        n |= n >>> 16;
+        n += 1;
+        return n;
     }
 
     public static boolean assertOn() {
@@ -597,7 +608,9 @@ public class Utils {
         }
         File file = File.createTempFile("script", OS.isWindows() ? ".bat" : ".sh");
         try {
-            script = "@echo off\r\n" + script;
+            if (OS.isWindows()) {
+                script = "@echo off\r\n" + script;
+            }
             Files.writeString(file.toPath(), script, OS.shellCharset());
             if (!file.setExecutable(true)) {
                 throw new Exception("chmod +x " + file.getAbsolutePath() + " failed");
@@ -763,7 +776,11 @@ public class Utils {
     }
 
     public static int calculateChecksum(ByteArray array, int limit) {
-        int sum = 0;
+        var intermediate = calculateChecksumIntermediate(0, array, limit);
+        return calculateChecksumDoFinal(intermediate);
+    }
+
+    public static int calculateChecksumIntermediate(int sum, ByteArray array, int limit) {
         for (int i = 0; i < limit / 2; ++i) {
             sum += array.uint16(i * 2);
             while (sum > 0xffff) {
@@ -776,6 +793,10 @@ public class Utils {
                 sum = (sum & 0xffff) + 1;
             }
         }
+        return sum;
+    }
+
+    public static int calculateChecksumDoFinal(int sum) {
         return 0xffff - sum;
     }
 
@@ -995,6 +1016,10 @@ public class Utils {
     }
 
     public static void loadDynamicLibrary(String name, ClassLoader cl, String basePath) throws UnsatisfiedLinkError {
+        loadDynamicLibrary(name, cl, basePath, null);
+    }
+
+    public static void loadDynamicLibrary(String name, ClassLoader cl, String basePath, String releaseTo) throws UnsatisfiedLinkError {
         // format basePath
         if (basePath.startsWith("/")) {
             basePath = basePath.substring(1);
@@ -1049,13 +1074,45 @@ public class Utils {
         } catch (IOException | NoSuchAlgorithmException e) {
             throw new UnsatisfiedLinkError(Utils.formatErr(e));
         }
+
+        if (releaseTo != null) {
+            String releaseMd5hex = "";
+            // check md5(file:releaseTo)
+            if (new File(releaseTo).exists()) {
+                try (var fis = new FileInputStream(releaseTo)) {
+                    var md = MessageDigest.getInstance("MD5");
+                    byte[] buf = new byte[1024];
+                    int n;
+                    while ((n = fis.read(buf)) > 0) {
+                        md.update(buf, 0, n);
+                    }
+                    var md5Bytes = md.digest();
+                    releaseMd5hex = ByteArray.from(md5Bytes).toHexString();
+                } catch (IOException | NoSuchAlgorithmException e) {
+                    throw new UnsatisfiedLinkError(Utils.formatErr(e));
+                }
+            }
+            if (!releaseMd5hex.equals(md5hex)) {
+                try {
+                    Files.copy(f.toPath(), Path.of(releaseTo));
+                } catch (IOException e) {
+                    throw new UnsatisfiedLinkError(Utils.formatErr(e));
+                }
+            }
+            //noinspection ResultOfMethodCallIgnored
+            f.delete();
+            f = new File(releaseTo);
+        }
+
         if (!f.setExecutable(true)) {
             throw new UnsatisfiedLinkError("failed setting executable on tmp file " + f.getAbsolutePath());
         }
         System.out.println("System.load(" + f.getAbsolutePath() + ")\tmd5=" + md5hex);
         System.load(f.getAbsolutePath());
-        //noinspection ResultOfMethodCallIgnored
-        f.delete();
+        if (releaseTo == null) { // do not delete the file if it's released to a location specified by user
+            //noinspection ResultOfMethodCallIgnored
+            f.delete();
+        }
     }
 
     public static void validateVProxyVersion(String version) throws Exception {

@@ -188,13 +188,12 @@ public abstract class IP implements ToByteArray {
     public boolean equals(Object o) {
         if (!(o instanceof IP))
             return false;
-        var that = (IP) o;
         if (!ipEquals(o))
             return false;
-        return Objects.equals(hostname, that.hostname);
+        return true;
     }
 
-    abstract public boolean ipEquals(Object o);
+    abstract protected boolean ipEquals(Object o);
 
     @Override
     abstract public int hashCode();
