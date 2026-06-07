@@ -2,6 +2,7 @@ plugins {
     id 'java-library'
     id 'maven-publish'
     id 'signing'
+    id 'org.jreleaser' version '1.24.0'
 }
 
 group 'io.vproxy'
@@ -82,17 +83,26 @@ publishing {
     }
     repositories {
         maven {
-            credentials {
-                username 'wkgcass'
-                password System.getProperty("MavenPublishPassword")
-            }
-            def releasesRepoUrl = 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/'
-            def snapshotsRepoUrl = 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
-            url = version.contains('-DEV') ? snapshotsRepoUrl : releasesRepoUrl
+            url = layout.buildDirectory.dir('staging-deploy')
         }
     }
 }
 
 signing {
     sign publishing.publications.maven
+}
+
+jreleaser {
+    deploy {
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = 'ALWAYS'
+                    sign = false
+                    url = 'https://central.sonatype.com/api/v1/publisher'
+                    stagingRepository('build/staging-deploy')
+                }
+            }
+        }
+    }
 }
